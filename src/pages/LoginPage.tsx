@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
 
 type LocationState = {
@@ -99,6 +99,13 @@ export function LoginPage() {
           >
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
+
+          <div className="mt-4 text-center text-sm text-slate-600">
+            Not registered yet?{" "}
+            <Link to="/register" className="font-medium text-slate-900 underline">
+              Register now
+            </Link>
+          </div>
         </form>
       </div>
     </div>
