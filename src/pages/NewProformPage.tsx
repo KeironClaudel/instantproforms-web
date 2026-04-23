@@ -80,7 +80,8 @@ export function NewProformPage() {
   }
 
   async function handleDownloadPdf() {
-  if (!createdProform) {
+  if (!createdProform?.id) {
+    setErrorMessage("The created proform identifier was not found.");
     return;
   }
 
@@ -97,7 +98,8 @@ export function NewProformPage() {
 }
 
 async function handleCreateShareLink() {
-  if (!createdProform) {
+  if (!createdProform?.id) {
+    setErrorMessage("The created proform identifier was not found.");
     return;
   }
 
@@ -121,7 +123,8 @@ async function handleCreateShareLink() {
 }
 
 async function handleNativeShare() {
-  if (!createdProform) {
+  if (!createdProform?.id) {
+    setErrorMessage("The created proform identifier was not found.");
     return;
   }
 
@@ -156,7 +159,8 @@ async function handleNativeShare() {
 }
 
 async function handleSendByEmail() {
-  if (!createdProform) {
+  if (!createdProform?.id) {
+    setErrorMessage("The created proform identifier was not found.");
     return;
   }
 
@@ -252,9 +256,16 @@ async function handleSendByEmail() {
         csrfToken,
       );
 
+      console.log("Create proform response:", response);
+
       setSuccessMessage(`Proform ${response.number} created successfully.`);
+      const createdProformId =
+      (response as { id?: string; proformId?: string }).id ??
+      (response as { id?: string; proformId?: string }).proformId ??
+      "";
+
       setCreatedProform({
-        id: response.id,
+        id: createdProformId,
         number: response.number,
         total: response.total,
       });

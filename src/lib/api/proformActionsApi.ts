@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/apiClient";
 import type { CreateShareLinkResponse, SendProformByEmailRequest } from "@/types/proformActions";
 
 export async function downloadProformPdf(proformId: string): Promise<Blob> {
-  const { data } = await apiClient.get(`/api/proforms/${proformId}/pdf`, {
+  const { data } = await apiClient.get(`/api/Proforms/${proformId}/pdf`, {
     responseType: "blob",
   });
 
@@ -13,11 +13,19 @@ export async function sendProformByEmail(
   request: SendProformByEmailRequest,
   csrfToken: string,
 ): Promise<void> {
-  await apiClient.post("/api/proforms/send-email", request, {
-    headers: {
-      "X-CSRF-TOKEN": csrfToken,
+  await apiClient.post(
+    `/api/Proforms/${request.proformId}/send-email`,
+    {
+      toEmail: request.toEmail,
+      subject: request.subject,
+      message: request.message,
     },
-  });
+    {
+      headers: {
+        "X-CSRF-TOKEN": csrfToken,
+      },
+    },
+  );
 }
 
 export async function createProformShareLink(
@@ -25,8 +33,8 @@ export async function createProformShareLink(
   csrfToken: string,
 ): Promise<CreateShareLinkResponse> {
   const { data } = await apiClient.post<CreateShareLinkResponse>(
-    "/api/proforms/share-links",
-    { proformId },
+    `/api/Proforms/${proformId}/share-link`,
+    {},
     {
       headers: {
         "X-CSRF-TOKEN": csrfToken,
