@@ -1,8 +1,8 @@
 export type ProformItemDraft = {
   id: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
+  quantity: string;
+  unitPrice: string;
 };
 
 export type CreateProformRequestItem = {

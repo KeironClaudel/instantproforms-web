@@ -14,8 +14,8 @@ function createEmptyItem(): ProformItemDraft {
   return {
     id: crypto.randomUUID(),
     description: "",
-    quantity: 1,
-    unitPrice: 0,
+    quantity: "1",
+    unitPrice: "",
   };
 }
 
@@ -41,21 +41,21 @@ export function NewProformPage() {
   const total = useMemo(() => calculateTotal(subtotal, taxAmount), [subtotal, taxAmount]);
 
   function updateItem(
-    itemId: string,
-    field: keyof Omit<ProformItemDraft, "id">,
-    value: string | number,
-  ) {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              [field]: value,
-            }
-          : item,
-      ),
-    );
-  }
+  itemId: string,
+  field: keyof Omit<ProformItemDraft, "id">,
+  value: string,
+) {
+  setItems((current) =>
+    current.map((item) =>
+      item.id === itemId
+        ? {
+            ...item,
+            [field]: value,
+          }
+        : item,
+    ),
+  );
+}
 
   function addItem() {
     setItems((current) => [...current, createEmptyItem()]);
@@ -79,12 +79,17 @@ export function NewProformPage() {
     }
 
     const normalizedItems = items
-      .map((item) => ({
-        description: item.description.trim(),
-        quantity: Number(item.quantity),
-        unitPrice: Number(item.unitPrice),
-      }))
-      .filter((item) => item.description.length > 0);
+                              .map((item) => ({
+                                description: item.description.trim(),
+                                quantity: Number(item.quantity.trim()),
+                                unitPrice: Number(item.unitPrice.trim()),
+                              }))
+                              .filter(
+                                (item) =>
+                                  item.description.length > 0 &&
+                                  Number.isFinite(item.quantity) &&
+                                  Number.isFinite(item.unitPrice),
+                              );
 
     if (clientName.trim().length === 0) {
       setErrorMessage("Client name is required.");
@@ -93,6 +98,15 @@ export function NewProformPage() {
 
     if (normalizedItems.length === 0) {
       setErrorMessage("At least one item is required.");
+      return;
+    }
+
+    const hasInvalidNumbers = normalizedItems.some(
+                                              (item) => item.quantity <= 0 || item.unitPrice < 0,
+                                            );
+
+    if (hasInvalidNumbers) {
+      setErrorMessage("Quantity must be greater than 0 and unit price cannot be negative.");
       return;
     }
 
@@ -224,23 +238,20 @@ export function NewProformPage() {
                       step="0.01"
                       className="w-full rounded-xl border border-slate-300 px-3 py-2"
                       value={item.quantity}
-                      onChange={(event) =>
-                        updateItem(item.id, "quantity", Number(event.target.value || 0))
-                      }
+                      onChange={(event) => updateItem(item.id, "quantity", event.target.value)}
                     />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="mb-1 block text-sm font-medium">Unit Price</label>
                     <input
-                      type="number"
+                      inputMode="decimal"
+                      type="text"
                       min="0"
                       step="0.01"
                       className="w-full rounded-xl border border-slate-300 px-3 py-2"
                       value={item.unitPrice}
-                      onChange={(event) =>
-                        updateItem(item.id, "unitPrice", Number(event.target.value || 0))
-                      }
+                      onChange={(event) => updateItem(item.id, "unitPrice", event.target.value)}
                     />
                   </div>
 
