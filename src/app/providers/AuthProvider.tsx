@@ -6,7 +6,12 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { getCurrentUser, login as loginRequest, logout as logoutRequest } from "@/lib/api/authApi";
+import {
+  getCurrentUser,
+  login as loginRequest,
+  logout as logoutRequest,
+  refreshToken,
+} from "@/lib/api/authApi";
 import { getCompanySettings } from "@/lib/api/companyApi";
 import type { AuthUser, LoginRequest } from "@/types/auth";
 import type { CompanySettings } from "@/types/company";
@@ -38,13 +43,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
     try {
       setIsLoading(true);
 
-      const currentUser = await getCurrentUser();
-      const settings = await getCompanySettings();
+      let currentUser: AuthUser | null = null;
+
+      try {
+        currentUser = await getCurrentUser();
+      } catch {
+        try {
+          await refreshToken();
+          currentUser = await getCurrentUser();
+        } catch {
+          clearSession();
+          return;
+        }
+      }
 
       setUser(currentUser);
-      setCompanySettings(settings);
-    } catch {
-      clearSession();
+
+      try {
+        const settings = await getCompanySettings();
+        setCompanySettings(settings);
+      } catch {
+        setCompanySettings(null);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -54,14 +74,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async (request: LoginRequest) => {
       setIsLoading(true);
 
-      try {
-        const currentUser = await loginRequest(request);
-        const settings = await getCompanySettings();
+      const currentUser = await loginRequest(request);
+      setUser(currentUser);
 
-        setUser(currentUser);
+      try {
+        const settings = await getCompanySettings();
         setCompanySettings(settings);
-      } finally {
-        setIsLoading(false);
+      } catch {
+        setCompanySettings(null);
       }
     },
     [],
@@ -80,8 +100,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const settings = await getCompanySettings();
-    setCompanySettings(settings);
+    try {
+      const settings = await getCompanySettings();
+      setCompanySettings(settings);
+    } catch {
+      setCompanySettings(null);
+    }
   }, [user]);
 
   const value = useMemo<AuthContextValue>(
