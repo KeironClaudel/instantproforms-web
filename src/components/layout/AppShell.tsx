@@ -1,53 +1,96 @@
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/app/providers/AuthProvider";
+
+function navLinkClassName({ isActive }: { isActive: boolean }) {
+  return [
+    "rounded-xl px-3 py-2 text-sm font-medium transition",
+    isActive
+      ? "bg-slate-900 text-white"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+  ].join(" ");
+}
 
 export function AppShell() {
   const { companySettings, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-slate-100 text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
             {companySettings?.logoUrl ? (
-              <img
-                src={companySettings.logoUrl}
-                alt={companySettings.displayName}
-                className="h-10 w-10 rounded-xl object-contain"
-              />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <img
+                  src={companySettings.logoUrl}
+                  alt={companySettings.displayName}
+                  className="h-9 w-9 object-contain"
+                />
+              </div>
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-200 text-sm font-semibold">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-200 text-sm font-semibold shadow-sm">
                 IP
               </div>
             )}
 
-            <div>
-              <div className="font-semibold">
+            <div className="min-w-0">
+              <div className="truncate text-base font-semibold text-slate-900">
                 {companySettings?.displayName ?? "InstantProforms"}
               </div>
-              <div className="text-xs text-slate-500">
-                Prefix: {companySettings?.proformPrefix ?? "-"} · Tax:{" "}
-                {companySettings?.taxPercentage ?? 0}%
+
+              <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span className="rounded-full bg-slate-100 px-2 py-1">
+                  Prefix: {companySettings?.proformPrefix ?? "-"}
+                </span>
+                <span className="rounded-full bg-slate-100 px-2 py-1">
+                  Tax: {companySettings?.taxPercentage ?? 0}%
+                </span>
               </div>
             </div>
           </div>
 
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/app">Dashboard</Link>
-            <Link to="/app/proforms/new">New Proform</Link>
-            <Link to="/app/settings">Settings</Link>
+          <div className="flex items-center gap-2">
+            <nav className="hidden items-center gap-2 md:flex">
+              <NavLink to="/app" end className={navLinkClassName}>
+                Dashboard
+              </NavLink>
+
+              <NavLink to="/app/proforms/new" className={navLinkClassName}>
+                New Proform
+              </NavLink>
+
+              <NavLink to="/app/settings" className={navLinkClassName}>
+                Settings
+              </NavLink>
+            </nav>
+
             <button
               type="button"
               onClick={() => void logout()}
-              className="rounded-lg border border-slate-300 px-3 py-1.5"
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               Logout
             </button>
-          </nav>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 bg-white md:hidden">
+          <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6">
+            <NavLink to="/app" end className={navLinkClassName}>
+              Dashboard
+            </NavLink>
+
+            <NavLink to="/app/proforms/new" className={navLinkClassName}>
+              New Proform
+            </NavLink>
+
+            <NavLink to="/app/settings" className={navLinkClassName}>
+              Settings
+            </NavLink>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         <Outlet />
       </main>
     </div>
