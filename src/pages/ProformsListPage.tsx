@@ -7,6 +7,7 @@ import { useAuth } from "@/app/providers/useAuth";
 import { getProforms } from "@/lib/api/proformHistoryApi";
 import { createErrorFeedback } from "@/lib/utils/feedback";
 import type { ProformListItem } from "@/types/proformHistory";
+import type { FeedbackState } from "@/lib/utils/feedback";
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -21,8 +22,7 @@ export function ProformsListPage() {
   const { companySettings } = useAuth();
   const [proforms, setProforms] = useState<ProformListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [feedback, setFeedback] = useState<{ type: "error"; message: string } | null>(null);
-
+  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
   const currencySymbol = companySettings?.currencySymbol ?? "₡";
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function ProformsListPage() {
         const data = await getProforms();
         setProforms(data);
       } catch {
-        setFeedback(createErrorFeedback("Failed to load proforms."));
+        setFeedback(createErrorFeedback("Failed to load proforms. Please try again later."));
       } finally {
         setIsLoading(false);
       }
