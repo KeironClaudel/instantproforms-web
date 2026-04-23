@@ -204,7 +204,10 @@ export function DashboardPage() {
             </div>
 
             <div className="rounded-3xl bg-slate-100 p-4">
-              <div className="rounded-3xl bg-slate-900 p-5 text-white">
+              <div
+                  className="rounded-3xl p-5 text-white"
+                  style={{ backgroundColor: companySettings?.primaryColor ?? "#0f172a" }}
+                >
                 <div className="flex items-center gap-3">
                   {companySettings?.logoUrl ? (
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
