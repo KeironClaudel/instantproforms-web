@@ -14,6 +14,8 @@ import { shareUrl } from "@/lib/utils/share";
 import type { CreatedProformSummary } from "@/types/proformActions";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 function createEmptyItem(): ProformItemDraft {
   return {
@@ -307,13 +309,12 @@ async function handleSendByEmail() {
           Proform Workflow
         </div>
 
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          New Proform
-        </h1>
-
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-          Create a professional proform with live totals, tenant tax settings, and quick delivery actions for mobile and desktop workflows.
-        </p>
+        <div className="mt-3">
+          <SectionHeader
+            title="New Proform"
+            description="Create a professional proform with live totals, tenant tax settings, and quick delivery actions for mobile and desktop workflows."
+          />
+        </div>
       </div>
 
       <form className="space-y-7" onSubmit={handleSubmit}>
@@ -493,6 +494,13 @@ async function handleSendByEmail() {
         >
           {isSubmitting ? "Creating proform..." : "Create Proform"}
         </button>
+
+        {!createdProform ? (
+          <EmptyState
+            title="No proform created yet"
+            description="Complete the form above to generate a proform and unlock PDF download, share link, and email delivery actions."
+          />
+        ) : null}
 
         {createdProform ? (
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

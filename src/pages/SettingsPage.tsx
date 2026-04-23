@@ -387,8 +387,8 @@ export function SettingsPage() {
                   />
                 </div>
               ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-500">
-                  No Logo
+                <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 text-center text-xs font-medium text-slate-500">
+                  No logo uploaded yet
                 </div>
               )}
 
