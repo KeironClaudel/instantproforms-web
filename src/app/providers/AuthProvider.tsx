@@ -6,39 +6,85 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-
-type AuthUser = {
-  userId: string;
-  fullName: string;
-  email: string;
-  role: string;
-  companyId: string;
-};
+import { getCurrentUser, login as loginRequest, logout as logoutRequest } from "@/lib/api/authApi";
+import { getCompanySettings } from "@/lib/api/companyApi";
+import type { AuthUser, LoginRequest } from "@/types/auth";
+import type { CompanySettings } from "@/types/company";
 
 type AuthContextValue = {
   user: AuthUser | null;
+  companySettings: CompanySettings | null;
   isAuthenticated: boolean;
-  setUser: (user: AuthUser | null) => void;
-  logoutLocal: () => void;
+  isLoading: boolean;
+  login: (request: LoginRequest) => Promise<void>;
+  logout: () => Promise<void>;
+  hydrateSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const logoutLocal = useCallback(() => {
+  const clearSession = useCallback(() => {
     setUser(null);
+    setCompanySettings(null);
   }, []);
+
+  const hydrateSession = useCallback(async () => {
+    try {
+      setIsLoading(true);
+
+      const currentUser = await getCurrentUser();
+      const settings = await getCompanySettings();
+
+      setUser(currentUser);
+      setCompanySettings(settings);
+    } catch {
+      clearSession();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [clearSession]);
+
+  const login = useCallback(
+    async (request: LoginRequest) => {
+      setIsLoading(true);
+
+      try {
+        const currentUser = await loginRequest(request);
+        const settings = await getCompanySettings();
+
+        setUser(currentUser);
+        setCompanySettings(settings);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      clearSession();
+    }
+  }, [clearSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
+      companySettings,
       isAuthenticated: user !== null,
-      setUser,
-      logoutLocal,
+      isLoading,
+      login,
+      logout,
+      hydrateSession,
     }),
-    [user, logoutLocal],
+    [user, companySettings, isLoading, login, logout, hydrateSession],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
