@@ -91,32 +91,32 @@ export function NewProformPage() {
   async function handleCopyShareLink() {
     clearFeedback();
     if (!shareUrlValue) {
-      setErrorMessage("There is no share link to copy yet.");
+    setFeedback(createErrorFeedback("There is no share link to copy yet."));
+    return;
+  }
+
+  try {
+    setIsCopyingShareLink(true);
+
+    const copied = await copyTextToClipboard(shareUrlValue);
+
+    if (!copied) {
+      setFeedback(createErrorFeedback("Failed to copy the share link."));
       return;
     }
 
-    try {
-      setIsCopyingShareLink(true);
-
-      const copied = await copyTextToClipboard(shareUrlValue);
-
-      if (!copied) {
-        setErrorMessage("Failed to copy the share link.");
-        return;
-      }
-
-      setSuccessMessage("Share link copied to clipboard.");
-    } catch {
-      setErrorMessage("Failed to copy the share link.");
-    } finally {
-      setIsCopyingShareLink(false);
-    }
+    setFeedback(createSuccessFeedback("Share link copied to clipboard."));
+  } catch {
+    setFeedback(createErrorFeedback("Failed to copy the share link."));
+  } finally {
+    setIsCopyingShareLink(false);
+  }
   }
 
   async function handleDownloadPdf() {
     clearFeedback();
     if (!createdProform?.id) {
-      setErrorMessage("The created proform identifier was not found.");
+      setFeedback(createErrorFeedback("The created proform identifier was not found."));
       return;
     }
 
@@ -127,7 +127,7 @@ export function NewProformPage() {
       downloadBlobFile(blob, `${createdProform.number}.pdf`);
       setFeedback(createSuccessFeedback("PDF downloaded successfully."));
     } catch {
-      setErrorMessage("Failed to download the PDF.");
+      setFeedback(createErrorFeedback("Failed to download the PDF."));
     } finally {
       setIsDownloading(false);
     }
@@ -136,8 +136,8 @@ export function NewProformPage() {
 async function handleCreateShareLink() {
   clearFeedback();
   if (!createdProform?.id) {
-    setErrorMessage("The created proform identifier was not found.");
-    return;
+  setFeedback(createErrorFeedback("The created proform identifier was not found."));
+  return;
   }
 
   const csrfToken = getCookieValue("XSRF-TOKEN");
@@ -154,7 +154,7 @@ async function handleCreateShareLink() {
     setShareUrlValue(response.shareUrl);
     setFeedback(createSuccessFeedback("Share link created successfully."));
   } catch {
-    setErrorMessage("Failed to create the share link.");
+    setFeedback(createErrorFeedback("Failed to create the share link."));
   } finally {
     setIsCreatingShareLink(false);
   }
@@ -163,8 +163,8 @@ async function handleCreateShareLink() {
 async function handleNativeShare() {
   clearFeedback();
   if (!createdProform?.id) {
-    setErrorMessage("The created proform identifier was not found.");
-    return;
+  setFeedback(createErrorFeedback("The created proform identifier was not found."));
+  return;
   }
 
   try {
@@ -189,11 +189,12 @@ async function handleNativeShare() {
     setFeedback(createSuccessFeedback("Share sheet opened successfully."));
 
     if (!shared) {
-      setErrorMessage("Native share is not available on this device.");
+      setFeedback(createErrorFeedback("Native share is not available on this device."));
+      return;
     }
   } catch {
-    setErrorMessage("Failed to share the proform.");
-  } finally {
+  setFeedback(createErrorFeedback("Failed to share the proform."));
+} finally {
     setIsSharing(false);
   }
 }
@@ -201,9 +202,9 @@ async function handleNativeShare() {
 async function handleSendByEmail() {
   clearFeedback();
   if (!createdProform?.id) {
-    setErrorMessage("The created proform identifier was not found.");
-    return;
-  }
+  setFeedback(createErrorFeedback("The created proform identifier was not found."));
+  return;
+}
 
   const csrfToken = getCookieValue("XSRF-TOKEN");
 
@@ -213,7 +214,7 @@ async function handleSendByEmail() {
   }
 
   if (!emailTo.trim()) {
-    setErrorMessage("Recipient email is required.");
+    setFeedback(createErrorFeedback("Recipient email is required."));
     return;
   }
 
@@ -230,9 +231,9 @@ async function handleSendByEmail() {
       csrfToken,
     );
 
-    setSuccessMessage(`Proform ${createdProform.number} was sent successfully.`);
+    setFeedback(createSuccessFeedback(`Proform ${createdProform.number} was sent successfully.`));
   } catch {
-    setErrorMessage("Failed to send the proform by email.");
+    setFeedback(createErrorFeedback("Failed to send the proform by email."));
   } finally {
     setIsSendingEmail(false);
   }
@@ -264,12 +265,12 @@ async function handleSendByEmail() {
                               );
 
     if (clientName.trim().length === 0) {
-      setErrorMessage("Client name is required.");
+      setFeedback(createErrorFeedback("Client name is required."));
       return;
     }
 
     if (normalizedItems.length === 0) {
-      setErrorMessage("At least one item is required.");
+      setFeedback(createErrorFeedback("At least one item is required."));
       return;
     }
 
@@ -278,7 +279,7 @@ async function handleSendByEmail() {
                                             );
 
     if (hasInvalidNumbers) {
-      setErrorMessage("Quantity must be greater than 0 and unit price cannot be negative.");
+      setFeedback(createErrorFeedback("Quantity must be greater than 0 and unit price cannot be negative."));
       return;
     }
 
@@ -314,7 +315,7 @@ async function handleSendByEmail() {
       setNotes("");
       setItems([createEmptyItem()]);
     } catch {
-      setErrorMessage("Failed to create the proform.");
+      setFeedback(createErrorFeedback("Failed to create the proform."));
     } finally {
       setIsSubmitting(false);
     }
