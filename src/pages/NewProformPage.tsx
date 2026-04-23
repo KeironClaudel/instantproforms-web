@@ -303,6 +303,10 @@ async function handleSendByEmail() {
       setCreatedProform({
         id: response.proformId,
         number: response.number,
+        status: response.status,
+        subtotal: response.subtotal,
+        taxPercentage: response.taxPercentage,
+        taxAmount: response.taxAmount,
         total: response.total,
       });
       setShareUrlValue(null);
