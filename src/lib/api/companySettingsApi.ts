@@ -26,25 +26,13 @@ export async function getCurrentCompanySettings(): Promise<CompanySettings> {
 
 export async function updateCompanySettings(
   request: UpdateCompanySettingsRequest,
-  csrfToken: string,
 ): Promise<void> {
-  await apiClient.put("/api/company-settings", request, {
-    headers: {
-      "X-CSRF-TOKEN": csrfToken,
-    },
-  });
+  await apiClient.put("/api/company-settings", request);
 }
 
-export async function replaceCompanyLogo(
-  file: File,
-  csrfToken: string,
-): Promise<void> {
+export async function replaceCompanyLogo(file: File): Promise<void> {
   const formData = new FormData();
   formData.append("logoFile", file);
 
-  await apiClient.put("/api/company-settings/logo", formData, {
-    headers: {
-      "X-CSRF-TOKEN": csrfToken,
-    },
-  });
+  await apiClient.put("/api/company-settings/logo", formData);
 }

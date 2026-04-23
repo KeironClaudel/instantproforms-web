@@ -1,7 +1,6 @@
 import {
-  createContext,
   useCallback,
-  useContext,
+  useEffect,
   useMemo,
   useState,
   type PropsWithChildren,
@@ -10,28 +9,14 @@ import {
   getCurrentUser,
   login as loginRequest,
   logout as logoutRequest,
-  refreshToken,
 } from "@/lib/api/authApi";
+import { AuthContext, type AuthContextValue } from "@/app/providers/auth-context";
 import { getCompanySettings } from "@/lib/api/companyApi";
 import type { AuthUser, LoginRequest } from "@/types/auth";
-import type { CompanySettings } from "@/types/company";
-
-type AuthContextValue = {
-  user: AuthUser | null;
-  companySettings: CompanySettings | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (request: LoginRequest) => Promise<void>;
-  logout: () => Promise<void>;
-  hydrateSession: () => Promise<void>;
-  refreshCompanySettings: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
+  const [companySettings, setCompanySettings] = useState<AuthContextValue["companySettings"]>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const clearSession = useCallback(() => {
@@ -43,20 +28,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     try {
       setIsLoading(true);
 
-      let currentUser: AuthUser | null = null;
-
-      try {
-        currentUser = await getCurrentUser();
-      } catch {
-        try {
-          await refreshToken();
-          currentUser = await getCurrentUser();
-        } catch {
-          clearSession();
-          return;
-        }
-      }
-
+      const currentUser = await getCurrentUser();
       setUser(currentUser);
 
       try {
@@ -65,6 +37,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       } catch {
         setCompanySettings(null);
       }
+    } catch {
+      clearSession();
     } finally {
       setIsLoading(false);
     }
@@ -74,17 +48,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async (request: LoginRequest) => {
       setIsLoading(true);
 
-      const currentUser = await loginRequest(request);
-      setUser(currentUser);
-
       try {
-        const settings = await getCompanySettings();
-        setCompanySettings(settings);
+        const currentUser = await loginRequest(request);
+        setUser(currentUser);
+
+        try {
+          const settings = await getCompanySettings();
+          setCompanySettings(settings);
+        } catch {
+          setCompanySettings(null);
+        }
       } catch {
-        setCompanySettings(null);
+        clearSession();
+        throw new Error("Login failed.");
+      } finally {
+        setIsLoading(false);
       }
     },
-    [],
+    [clearSession],
   );
 
   const logout = useCallback(async () => {
@@ -108,6 +89,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [user]);
 
+  useEffect(() => {
+    function handleSessionExpired() {
+      setIsLoading(false);
+      clearSession();
+    }
+
+    window.addEventListener("auth:session-expired", handleSessionExpired);
+    return () => {
+      window.removeEventListener("auth:session-expired", handleSessionExpired);
+    };
+  }, [clearSession]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -123,14 +116,4 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider.");
-  }
-
-  return context;
 }

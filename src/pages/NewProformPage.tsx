@@ -1,13 +1,12 @@
 import { useMemo, useState } from "react";
 import { createProform } from "@/lib/api/proformApi";
-import { getCookieValue } from "@/lib/utils/cookies";
 import {
   calculateLineTotal,
   calculateSubtotal,
   calculateTaxAmount,
   calculateTotal,
 } from "@/lib/utils/proformCalculations";
-import { useAuth } from "@/app/providers/AuthProvider";
+import { useAuth } from "@/app/providers/useAuth";
 import type { ProformItemDraft } from "@/types/proform";
 import { downloadProformPdf, createProformShareLink, sendProformByEmail } from "@/lib/api/proformActionsApi";
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
@@ -146,17 +145,10 @@ async function handleCreateShareLink() {
   return;
   }
 
-  const csrfToken = getCookieValue("XSRF-TOKEN");
-
-  if (!csrfToken) {
-    setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-    return;
-  }
-
   setIsCreatingShareLink(true);
 
   try {
-    const response = await createProformShareLink(createdProform.id, csrfToken);
+    const response = await createProformShareLink(createdProform.id);
     setShareUrlValue(response.shareUrl);
     setFeedback(createSuccessFeedback("Share link created successfully."));
   } catch {
@@ -179,14 +171,7 @@ async function handleNativeShare() {
     let finalUrl = shareUrlValue;
 
     if (!finalUrl) {
-      const csrfToken = getCookieValue("XSRF-TOKEN");
-
-      if (!csrfToken) {
-        setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-        return;
-      }
-
-      const response = await createProformShareLink(createdProform.id, csrfToken);
+      const response = await createProformShareLink(createdProform.id);
       finalUrl = response.shareUrl;
       setShareUrlValue(finalUrl);
     }
@@ -212,13 +197,6 @@ async function handleSendByEmail() {
   return;
 }
 
-  const csrfToken = getCookieValue("XSRF-TOKEN");
-
-  if (!csrfToken) {
-    setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-    return;
-  }
-
   if (!emailTo.trim()) {
     setFeedback(createErrorFeedback("Recipient email is required."));
     return;
@@ -234,7 +212,6 @@ async function handleSendByEmail() {
         subject: emailSubject.trim() || null,
         message: emailMessage.trim() || null,
       },
-      csrfToken,
     );
 
     setFeedback(createSuccessFeedback(`Proform ${createdProform.number} was sent successfully.`));
@@ -249,13 +226,6 @@ async function handleSendByEmail() {
     event.preventDefault();
 
     clearFeedback();
-
-    const csrfToken = getCookieValue("XSRF-TOKEN");
-
-    if (!csrfToken) {
-      setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-      return;
-    }
 
     const normalizedItems = items
                               .map((item) => ({
@@ -300,7 +270,6 @@ async function handleSendByEmail() {
           notes: notes.trim() || null,
           items: normalizedItems,
         },
-        csrfToken,
       );
 
       console.log("Create proform response:", response);

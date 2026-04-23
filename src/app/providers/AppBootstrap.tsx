@@ -1,5 +1,5 @@
 import { useEffect, type PropsWithChildren } from "react";
-import { useAuth } from "@/app/providers/AuthProvider";
+import { useAuth } from "@/app/providers/useAuth";
 
 export function AppBootstrap({ children }: PropsWithChildren) {
   const { hydrateSession } = useAuth();

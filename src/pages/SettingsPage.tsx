@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/app/providers/AuthProvider";
+import { useAuth } from "@/app/providers/useAuth";
 import {
   getCurrentCompanySettings,
   replaceCompanyLogo,
   updateCompanySettings,
 } from "@/lib/api/companySettingsApi";
-import { getCookieValue } from "@/lib/utils/cookies";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import type { CompanySettings } from "@/types/company";
 
@@ -115,13 +114,6 @@ export function SettingsPage() {
     event.preventDefault();
     clearFeedback();
 
-    const csrfToken = getCookieValue("XSRF-TOKEN");
-
-    if (!csrfToken) {
-      setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-      return;
-    }
-
     const parsedTaxPercentage = Number(form.taxPercentage);
 
     if (!Number.isFinite(parsedTaxPercentage) || parsedTaxPercentage < 0 || parsedTaxPercentage > 100) {
@@ -150,7 +142,6 @@ export function SettingsPage() {
           currencySymbol: form.currencySymbol.trim(),
           taxLabel: form.taxLabel.trim(),
         },
-        csrfToken,
       );
 
       await refreshCompanySettings();
@@ -170,17 +161,10 @@ export function SettingsPage() {
       return;
     }
 
-    const csrfToken = getCookieValue("XSRF-TOKEN");
-
-    if (!csrfToken) {
-      setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
-      return;
-    }
-
     setIsUploadingLogo(true);
 
     try {
-      await replaceCompanyLogo(file, csrfToken);
+      await replaceCompanyLogo(file);
       await refreshCompanySettings();
       setFeedback(createSuccessFeedback("Company logo updated successfully."));
     } catch {

@@ -11,36 +11,16 @@ export async function downloadProformPdf(proformId: string): Promise<Blob> {
 
 export async function sendProformByEmail(
   request: SendProformByEmailRequest,
-  csrfToken: string,
 ): Promise<void> {
-  await apiClient.post(
-    `/api/Proforms/${request.proformId}/send-email`,
-    {
-      toEmail: request.toEmail,
-      subject: request.subject,
-      message: request.message,
-    },
-    {
-      headers: {
-        "X-CSRF-TOKEN": csrfToken,
-      },
-    },
-  );
+  await apiClient.post(`/api/Proforms/${request.proformId}/send-email`, {
+    toEmail: request.toEmail,
+    subject: request.subject,
+    message: request.message,
+  });
 }
 
-export async function createProformShareLink(
-  proformId: string,
-  csrfToken: string,
-): Promise<CreateShareLinkResponse> {
-  const { data } = await apiClient.post<CreateShareLinkResponse>(
-    `/api/Proforms/${proformId}/share-link`,
-    {},
-    {
-      headers: {
-        "X-CSRF-TOKEN": csrfToken,
-      },
-    },
-  );
+export async function createProformShareLink(proformId: string): Promise<CreateShareLinkResponse> {
+  const { data } = await apiClient.post<CreateShareLinkResponse>(`/api/Proforms/${proformId}/share-link`, {});
 
   return data;
 }
