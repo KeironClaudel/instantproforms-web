@@ -8,6 +8,7 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { NewProformPage } from "@/pages/NewProformPage";
 import { OnboardingCompanyPage } from "@/pages/OnboardingCompanyPage";
 import { ProformsListPage } from "@/pages/ProformsListPage";
+import { ProformDetailsPage } from "@/pages/ProformDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: "proforms",
         element: <ProformsListPage />,
+      },
+      {
+        path: "proforms/:id",
+        element: <ProformDetailsPage />,
       },
       {
         path: "settings",
