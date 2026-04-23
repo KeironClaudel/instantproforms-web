@@ -7,6 +7,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { NewProformPage } from "@/pages/NewProformPage";
 import { OnboardingCompanyPage } from "@/pages/OnboardingCompanyPage";
+import { ProformsListPage } from "@/pages/ProformsListPage";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: "proforms/new",
         element: <NewProformPage />,
+      },
+      {
+        path: "proforms",
+        element: <ProformsListPage />,
       },
       {
         path: "settings",
