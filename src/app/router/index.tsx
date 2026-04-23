@@ -6,6 +6,7 @@ import { RegisterPage } from "@/pages/RegisterPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { NewProformPage } from "@/pages/NewProformPage";
+import { OnboardingCompanyPage } from "@/pages/OnboardingCompanyPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <DashboardPage />,
+      },
+      {
+        path: "onboarding/company",
+        element: <OnboardingCompanyPage />,
       },
       {
         path: "proforms/new",
