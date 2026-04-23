@@ -15,5 +15,9 @@ export type CreateShareLinkResponse = {
 export type CreatedProformSummary = {
   id: string;
   number: string;
+  status: string;
+  subtotal: number;
+  taxPercentage: number;
+  taxAmount: number;
   total: number;
 };
