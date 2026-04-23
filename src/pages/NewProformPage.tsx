@@ -508,12 +508,77 @@ async function handleSendByEmail() {
         </button>
 
         {createdProform ? (
-          <section className="rounded-2xl border bg-white p-4 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <div className="text-sm font-medium uppercase tracking-wide text-emerald-700">
+                    Proform Created
+                  </div>
+
+                  <h2 className="mt-1 text-2xl font-semibold text-slate-900">
+                    {createdProform.number}
+                  </h2>
+
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                    <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
+                      Status: {createdProform.status}
+                    </span>
+
+                    <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
+                      Prefix: {companySettings?.proformPrefix ?? "-"}
+                    </span>
+
+                    <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
+                      Tax: {createdProform.taxPercentage}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-sm">
+                  <div className="text-xs uppercase tracking-wide text-slate-500">
+                    Total
+                  </div>
+                  <div className="mt-1 text-2xl font-semibold text-slate-900">
+                    {companySettings?.currencySymbol ?? "₡"}
+                    {createdProform.total.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+                <div className="rounded-xl bg-white px-3 py-3">
+                  <div className="text-slate-500">Subtotal</div>
+                  <div className="mt-1 font-semibold text-slate-900">
+                    {companySettings?.currencySymbol ?? "₡"}
+                    {createdProform.subtotal.toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-white px-3 py-3">
+                  <div className="text-slate-500">
+                    {companySettings?.taxLabel ?? "Tax"} ({createdProform.taxPercentage}%)
+                  </div>
+                  <div className="mt-1 font-semibold text-slate-900">
+                    {companySettings?.currencySymbol ?? "₡"}
+                    {createdProform.taxAmount.toFixed(2)}
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-white px-3 py-3">
+                  <div className="text-slate-500">Final Total</div>
+                  <div className="mt-1 font-semibold text-slate-900">
+                    {companySettings?.currencySymbol ?? "₡"}
+                    {createdProform.total.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="mb-4">
-              <h2 className="text-lg font-semibold">Proform Actions</h2>
+              <h3 className="text-lg font-semibold text-slate-900">Proform Actions</h3>
               <p className="mt-1 text-sm text-slate-600">
-                {createdProform.number} · {companySettings?.currencySymbol ?? "₡"}
-                {createdProform.total.toFixed(2)}
+                Download, share, or send the generated proform.
               </p>
             </div>
 
@@ -543,6 +608,18 @@ async function handleSendByEmail() {
                 className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
               >
                 {isSharing ? "Sharing..." : "Share"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedProform(null);
+                  setShareUrlValue(null);
+                  clearFeedback();
+                }}
+                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
+              >
+                Create Another Proform
               </button>
             </div>
 
