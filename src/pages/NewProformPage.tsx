@@ -13,6 +13,7 @@ import { downloadProformPdf, createProformShareLink, sendProformByEmail } from "
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
 import { shareUrl } from "@/lib/utils/share";
 import type { CreatedProformSummary } from "@/types/proformActions";
+import { copyTextToClipboard } from "@/lib/utils/clipboard";
 
 function createEmptyItem(): ProformItemDraft {
   return {
@@ -53,6 +54,7 @@ export function NewProformPage() {
   const [isSharing, setIsSharing] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isCreatingShareLink, setIsCreatingShareLink] = useState(false);
+  const [isCopyingShareLink, setIsCopyingShareLink] = useState(false);
 
   function updateItem(
   itemId: string,
@@ -78,6 +80,30 @@ export function NewProformPage() {
   function removeItem(itemId: string) {
     setItems((current) => (current.length === 1 ? current : current.filter((item) => item.id !== itemId)));
   }
+
+  async function handleCopyShareLink() {
+  if (!shareUrlValue) {
+    setErrorMessage("There is no share link to copy yet.");
+    return;
+  }
+
+  try {
+    setIsCopyingShareLink(true);
+
+    const copied = await copyTextToClipboard(shareUrlValue);
+
+    if (!copied) {
+      setErrorMessage("Failed to copy the share link.");
+      return;
+    }
+
+    setSuccessMessage("Share link copied to clipboard.");
+  } catch {
+    setErrorMessage("Failed to copy the share link.");
+  } finally {
+    setIsCopyingShareLink(false);
+  }
+}
 
   async function handleDownloadPdf() {
   if (!createdProform?.id) {
@@ -503,7 +529,19 @@ async function handleSendByEmail() {
 
             {shareUrlValue ? (
               <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="mb-2 text-sm font-medium">Share URL</div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="text-sm font-medium">Share URL</div>
+
+                  <button
+                    type="button"
+                    onClick={() => void handleCopyShareLink()}
+                    disabled={isCopyingShareLink}
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium"
+                  >
+                    {isCopyingShareLink ? "Copying..." : "Copy Link"}
+                  </button>
+                </div>
+
                 <div className="break-all text-sm text-slate-700">{shareUrlValue}</div>
               </div>
             ) : null}
