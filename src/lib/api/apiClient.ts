@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { getCookieValue } from "@/lib/utils/cookies";
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,6 +28,14 @@ function shouldSkipRefresh(url?: string) {
   return url === "/api/auth/login" || url === "/api/auth/logout" || url === "/api/auth/refresh";
 }
 
+function requiresCsrfHeader(method?: string) {
+  if (!method) {
+    return false;
+  }
+
+  return ["post", "put", "patch", "delete"].includes(method.toLowerCase());
+}
+
 function notifySessionExpired() {
   if (typeof window === "undefined") {
     return;
@@ -47,6 +56,20 @@ async function refreshSession() {
 
   return refreshRequest;
 }
+
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (!requiresCsrfHeader(config.method)) {
+    return config;
+  }
+
+  const csrfToken = getCookieValue("XSRF-TOKEN");
+
+  if (csrfToken && !config.headers.has("X-CSRF-TOKEN")) {
+    config.headers.set("X-CSRF-TOKEN", csrfToken);
+  }
+
+  return config;
+});
 
 apiClient.interceptors.response.use(
   (response) => response,
