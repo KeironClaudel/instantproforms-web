@@ -20,7 +20,7 @@ export type CreateProformRequest = {
 };
 
 export type CreateProformResponse = {
-  id: string;
+  proformId: string;
   number: string;
   status: string;
   subtotal: number;

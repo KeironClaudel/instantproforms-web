@@ -259,13 +259,8 @@ async function handleSendByEmail() {
       console.log("Create proform response:", response);
 
       setSuccessMessage(`Proform ${response.number} created successfully.`);
-      const createdProformId =
-      (response as { id?: string; proformId?: string }).id ??
-      (response as { id?: string; proformId?: string }).proformId ??
-      "";
-
       setCreatedProform({
-        id: createdProformId,
+        id: response.proformId,
         number: response.number,
         total: response.total,
       });
