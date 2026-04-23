@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
+import { isCompanySetupComplete } from "@/lib/utils/companySetup";
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {
   return [
@@ -10,8 +11,18 @@ function navLinkClassName({ isActive }: { isActive: boolean }) {
   ].join(" ");
 }
 
+function setupLinkClassName({ isActive }: { isActive: boolean }) {
+  return [
+    "rounded-xl px-3 py-2 text-sm font-medium transition",
+    isActive
+      ? "bg-amber-500 text-white"
+      : "bg-amber-100 text-amber-800 hover:bg-amber-200",
+  ].join(" ");
+}
+
 export function AppShell() {
   const { companySettings, logout } = useAuth();
+  const isSetupComplete = isCompanySetupComplete(companySettings);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
@@ -61,6 +72,12 @@ export function AppShell() {
               <NavLink to="/app/settings" className={navLinkClassName}>
                 Settings
               </NavLink>
+
+              {!isSetupComplete ? (
+                <NavLink to="/app/onboarding/company" className={setupLinkClassName}>
+                  Complete Setup
+                </NavLink>
+              ) : null}
             </nav>
 
             <button
@@ -86,6 +103,12 @@ export function AppShell() {
             <NavLink to="/app/settings" className={navLinkClassName}>
               Settings
             </NavLink>
+
+            {!isSetupComplete ? (
+              <NavLink to="/app/onboarding/company" className={setupLinkClassName}>
+                Complete Setup
+              </NavLink>
+            ) : null}
           </div>
         </div>
       </header>
