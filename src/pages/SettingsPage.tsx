@@ -7,6 +7,8 @@ import {
 } from "@/lib/api/companySettingsApi";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import type { CompanySettings } from "@/types/company";
+import { PageLoader } from "@/components/ui/PageLoader";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 type FeedbackState = {
   type: "success" | "error";
@@ -176,7 +178,7 @@ export function SettingsPage() {
   }
 
   if (isLoading) {
-    return <div className="p-4 text-sm text-slate-600">Loading company settings...</div>;
+    return <PageLoader message="Loading company settings..." />;
   }
 
   return (
