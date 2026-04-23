@@ -14,6 +14,7 @@ import { downloadBlobFile } from "@/lib/utils/fileDownload";
 import { shareUrl } from "@/lib/utils/share";
 import type { CreatedProformSummary } from "@/types/proformActions";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
+import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 
 function createEmptyItem(): ProformItemDraft {
   return {
@@ -33,8 +34,10 @@ export function NewProformPage() {
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState<ProformItemDraft[]>([createEmptyItem()]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   const taxPercentage = companySettings?.taxPercentage ?? 0;
 
@@ -81,49 +84,57 @@ export function NewProformPage() {
     setItems((current) => (current.length === 1 ? current : current.filter((item) => item.id !== itemId)));
   }
 
-  async function handleCopyShareLink() {
-  if (!shareUrlValue) {
-    setErrorMessage("There is no share link to copy yet.");
-    return;
+  function clearFeedback() {
+    setFeedback(null);
   }
 
-  try {
-    setIsCopyingShareLink(true);
-
-    const copied = await copyTextToClipboard(shareUrlValue);
-
-    if (!copied) {
-      setErrorMessage("Failed to copy the share link.");
+  async function handleCopyShareLink() {
+    clearFeedback();
+    if (!shareUrlValue) {
+      setErrorMessage("There is no share link to copy yet.");
       return;
     }
 
-    setSuccessMessage("Share link copied to clipboard.");
-  } catch {
-    setErrorMessage("Failed to copy the share link.");
-  } finally {
-    setIsCopyingShareLink(false);
+    try {
+      setIsCopyingShareLink(true);
+
+      const copied = await copyTextToClipboard(shareUrlValue);
+
+      if (!copied) {
+        setErrorMessage("Failed to copy the share link.");
+        return;
+      }
+
+      setSuccessMessage("Share link copied to clipboard.");
+    } catch {
+      setErrorMessage("Failed to copy the share link.");
+    } finally {
+      setIsCopyingShareLink(false);
+    }
   }
-}
 
   async function handleDownloadPdf() {
-  if (!createdProform?.id) {
-    setErrorMessage("The created proform identifier was not found.");
-    return;
-  }
+    clearFeedback();
+    if (!createdProform?.id) {
+      setErrorMessage("The created proform identifier was not found.");
+      return;
+    }
 
-  setIsDownloading(true);
+    setIsDownloading(true);
 
-  try {
-    const blob = await downloadProformPdf(createdProform.id);
-    downloadBlobFile(blob, `${createdProform.number}.pdf`);
-  } catch {
-    setErrorMessage("Failed to download the PDF.");
-  } finally {
-    setIsDownloading(false);
+    try {
+      const blob = await downloadProformPdf(createdProform.id);
+      downloadBlobFile(blob, `${createdProform.number}.pdf`);
+      setFeedback(createSuccessFeedback("PDF downloaded successfully."));
+    } catch {
+      setErrorMessage("Failed to download the PDF.");
+    } finally {
+      setIsDownloading(false);
+    }
   }
-}
 
 async function handleCreateShareLink() {
+  clearFeedback();
   if (!createdProform?.id) {
     setErrorMessage("The created proform identifier was not found.");
     return;
@@ -132,7 +143,7 @@ async function handleCreateShareLink() {
   const csrfToken = getCookieValue("XSRF-TOKEN");
 
   if (!csrfToken) {
-    setErrorMessage("CSRF token was not found. Please log in again.");
+    setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
     return;
   }
 
@@ -141,6 +152,7 @@ async function handleCreateShareLink() {
   try {
     const response = await createProformShareLink(createdProform.id, csrfToken);
     setShareUrlValue(response.shareUrl);
+    setFeedback(createSuccessFeedback("Share link created successfully."));
   } catch {
     setErrorMessage("Failed to create the share link.");
   } finally {
@@ -149,6 +161,7 @@ async function handleCreateShareLink() {
 }
 
 async function handleNativeShare() {
+  clearFeedback();
   if (!createdProform?.id) {
     setErrorMessage("The created proform identifier was not found.");
     return;
@@ -163,7 +176,7 @@ async function handleNativeShare() {
       const csrfToken = getCookieValue("XSRF-TOKEN");
 
       if (!csrfToken) {
-        setErrorMessage("CSRF token was not found. Please log in again.");
+        setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
         return;
       }
 
@@ -173,6 +186,7 @@ async function handleNativeShare() {
     }
 
     const shared = await shareUrl(`Proform ${createdProform.number}`, finalUrl);
+    setFeedback(createSuccessFeedback("Share sheet opened successfully."));
 
     if (!shared) {
       setErrorMessage("Native share is not available on this device.");
@@ -185,6 +199,7 @@ async function handleNativeShare() {
 }
 
 async function handleSendByEmail() {
+  clearFeedback();
   if (!createdProform?.id) {
     setErrorMessage("The created proform identifier was not found.");
     return;
@@ -193,7 +208,7 @@ async function handleSendByEmail() {
   const csrfToken = getCookieValue("XSRF-TOKEN");
 
   if (!csrfToken) {
-    setErrorMessage("CSRF token was not found. Please log in again.");
+    setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
     return;
   }
 
@@ -226,13 +241,12 @@ async function handleSendByEmail() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    setErrorMessage(null);
-    setSuccessMessage(null);
+    clearFeedback();
 
     const csrfToken = getCookieValue("XSRF-TOKEN");
 
     if (!csrfToken) {
-      setErrorMessage("CSRF token was not found. Please log in again.");
+      setFeedback(createErrorFeedback("CSRF token was not found. Please log in again."));
       return;
     }
 
@@ -284,7 +298,7 @@ async function handleSendByEmail() {
 
       console.log("Create proform response:", response);
 
-      setSuccessMessage(`Proform ${response.number} created successfully.`);
+      setFeedback(createSuccessFeedback(`Proform ${response.number} created successfully.`));
       setCreatedProform({
         id: response.proformId,
         number: response.number,
@@ -468,15 +482,15 @@ async function handleSendByEmail() {
           </div>
         </section>
 
-        {errorMessage ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {errorMessage}
-          </div>
-        ) : null}
-
-        {successMessage ? (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            {successMessage}
+        {feedback ? (
+          <div
+            className={`rounded-xl px-4 py-3 text-sm ${
+              feedback.type === "success"
+                ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {feedback.message}
           </div>
         ) : null}
 
