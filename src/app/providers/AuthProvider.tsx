@@ -19,6 +19,7 @@ type AuthContextValue = {
   login: (request: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
   hydrateSession: () => Promise<void>;
+  refreshCompanySettings: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -74,6 +75,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [clearSession]);
 
+  const refreshCompanySettings = useCallback(async () => {
+    if (!user) {
+      return;
+    }
+
+    const settings = await getCompanySettings();
+    setCompanySettings(settings);
+  }, [user]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -83,8 +93,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       login,
       logout,
       hydrateSession,
+      refreshCompanySettings,
     }),
-    [user, companySettings, isLoading, login, logout, hydrateSession],
+    [user, companySettings, isLoading, login, logout, hydrateSession, refreshCompanySettings],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
