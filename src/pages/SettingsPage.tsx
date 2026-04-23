@@ -182,7 +182,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl px-1 sm:px-0">
       <div className="mb-8">
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
           Company Configuration

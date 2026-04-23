@@ -303,7 +303,7 @@ async function handleSendByEmail() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl px-1 sm:px-0">
       <div className="mb-8">
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
           Proform Workflow
@@ -317,7 +317,7 @@ async function handleSendByEmail() {
         </div>
       </div>
 
-      <form className="space-y-7" onSubmit={handleSubmit}>
+      <form className="space-y-6 sm:space-y-7" onSubmit={handleSubmit}>
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
             Client Information
