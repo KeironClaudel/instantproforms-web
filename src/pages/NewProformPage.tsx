@@ -59,6 +59,12 @@ export function NewProformPage() {
   const [isCreatingShareLink, setIsCreatingShareLink] = useState(false);
   const [isCopyingShareLink, setIsCopyingShareLink] = useState(false);
 
+  const inputClassName =
+  "w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
+
+const textareaClassName =
+  "min-h-28 w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
+
   function updateItem(
   itemId: string,
   field: keyof Omit<ProformItemDraft, "id">,
@@ -326,23 +332,32 @@ async function handleSendByEmail() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">New Proform</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Create a professional proform with live totals and company tax settings.
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-8">
+        <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
+          Proform Workflow
+        </div>
+
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
+          New Proform
+        </h1>
+
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+          Create a professional proform with live totals, tenant tax settings, and quick delivery actions for mobile and desktop workflows.
         </p>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <section className="rounded-2xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold">Client Information</h2>
+      <form className="space-y-7" onSubmit={handleSubmit}>
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
+            Client Information
+          </h2>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-medium">Client Name</label>
               <input
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className={inputClassName}
                 value={clientName}
                 onChange={(event) => setClientName(event.target.value)}
                 required
@@ -353,7 +368,7 @@ async function handleSendByEmail() {
               <label className="mb-1 block text-sm font-medium">Client Email</label>
               <input
                 type="email"
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className={inputClassName}
                 value={clientEmail}
                 onChange={(event) => setClientEmail(event.target.value)}
               />
@@ -362,7 +377,7 @@ async function handleSendByEmail() {
             <div>
               <label className="mb-1 block text-sm font-medium">Client Phone</label>
               <input
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className={inputClassName}
                 value={clientPhone}
                 onChange={(event) => setClientPhone(event.target.value)}
               />
@@ -371,7 +386,7 @@ async function handleSendByEmail() {
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-medium">Notes / Location</label>
               <textarea
-                className="min-h-24 w-full rounded-xl border border-slate-300 px-3 py-2"
+                className={textareaClassName}
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
               />
@@ -379,14 +394,14 @@ async function handleSendByEmail() {
           </div>
         </section>
 
-        <section className="rounded-2xl border bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Items</h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold tracking-tight text-slate-900">Items</h2>
 
             <button
               type="button"
               onClick={addItem}
-              className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
+              className="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
               Add Item
             </button>
@@ -394,57 +409,58 @@ async function handleSendByEmail() {
 
           <div className="space-y-4">
             {items.map((item, index) => (
-              <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
+              <div
+                key={item.id}
+                className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5"
+              >
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="text-sm font-medium text-slate-700">Item {index + 1}</div>
+                  <div className="text-sm font-semibold text-slate-800">Item {index + 1}</div>
 
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
-                    className="text-sm text-red-600"
+                    className="text-sm font-medium text-red-600 transition hover:text-red-700"
                   >
                     Remove
                   </button>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-12">
-                  <div className="md:col-span-6">
+                <div className="grid gap-4 lg:grid-cols-12">
+                  <div className="lg:col-span-6">
                     <label className="mb-1 block text-sm font-medium">Description</label>
                     <input
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      className={inputClassName}
                       value={item.description}
                       onChange={(event) => updateItem(item.id, "description", event.target.value)}
                     />
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="lg:col-span-2">
                     <label className="mb-1 block text-sm font-medium">Quantity</label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      className={inputClassName}
                       value={item.quantity}
                       onChange={(event) => updateItem(item.id, "quantity", event.target.value)}
                     />
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="lg:col-span-2">
                     <label className="mb-1 block text-sm font-medium">Unit Price</label>
                     <input
                       inputMode="decimal"
                       type="text"
-                      min="0"
-                      step="0.01"
-                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      className={inputClassName}
                       value={item.unitPrice}
                       onChange={(event) => updateItem(item.id, "unitPrice", event.target.value)}
                     />
                   </div>
 
-                  <div className="md:col-span-2">
+                  <div className="lg:col-span-2">
                     <label className="mb-1 block text-sm font-medium">Line Total</label>
-                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                    <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700">
                       {companySettings?.currencySymbol ?? "₡"}
                       {calculateLineTotal(item.quantity, item.unitPrice).toFixed(2)}
                     </div>
@@ -455,10 +471,12 @@ async function handleSendByEmail() {
           </div>
         </section>
 
-        <section className="rounded-2xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold">Summary</h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
+            Summary
+          </h2>
 
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
               <span>
@@ -477,7 +495,7 @@ async function handleSendByEmail() {
               </span>
             </div>
 
-            <div className="flex items-center justify-between border-t pt-3 text-base font-semibold">
+            <div className="flex items-center justify-between border-t border-slate-300 pt-4 text-lg font-semibold text-slate-900">
               <span>Total</span>
               <span>
                 {companySettings?.currencySymbol ?? "₡"}
@@ -489,7 +507,7 @@ async function handleSendByEmail() {
 
         {feedback ? (
           <div
-            className={`rounded-xl px-4 py-3 text-sm ${
+            className={`rounded-2xl px-4 py-3.5 text-sm shadow-sm ${
               feedback.type === "success"
                 ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
                 : "border border-red-200 bg-red-50 text-red-700"
@@ -502,14 +520,14 @@ async function handleSendByEmail() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Creating proform..." : "Create Proform"}
         </button>
 
         {createdProform ? (
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-5 rounded-3xl border border-emerald-200 bg-emerald-50 p-4">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
                   <div className="text-sm font-medium uppercase tracking-wide text-emerald-700">
@@ -536,9 +554,7 @@ async function handleSendByEmail() {
                 </div>
 
                 <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-sm">
-                  <div className="text-xs uppercase tracking-wide text-slate-500">
-                    Total
-                  </div>
+                  <div className="text-xs uppercase tracking-wide text-slate-500">Total</div>
                   <div className="mt-1 text-2xl font-semibold text-slate-900">
                     {companySettings?.currencySymbol ?? "₡"}
                     {createdProform.total.toFixed(2)}
@@ -576,7 +592,9 @@ async function handleSendByEmail() {
             </div>
 
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Proform Actions</h3>
+              <h3 className="text-xl font-semibold tracking-tight text-slate-900">
+                Proform Actions
+              </h3>
               <p className="mt-1 text-sm text-slate-600">
                 Download, share, or send the generated proform.
               </p>
@@ -587,7 +605,7 @@ async function handleSendByEmail() {
                 type="button"
                 onClick={() => void handleDownloadPdf()}
                 disabled={isDownloading}
-                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 {isDownloading ? "Downloading..." : "Download PDF"}
               </button>
@@ -596,7 +614,7 @@ async function handleSendByEmail() {
                 type="button"
                 onClick={() => void handleCreateShareLink()}
                 disabled={isCreatingShareLink}
-                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 {isCreatingShareLink ? "Creating link..." : "Create Share Link"}
               </button>
@@ -605,7 +623,7 @@ async function handleSendByEmail() {
                 type="button"
                 onClick={() => void handleNativeShare()}
                 disabled={isSharing}
-                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 {isSharing ? "Sharing..." : "Share"}
               </button>
@@ -617,14 +635,14 @@ async function handleSendByEmail() {
                   setShareUrlValue(null);
                   clearFeedback();
                 }}
-                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium"
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 Create Another Proform
               </button>
             </div>
 
             {shareUrlValue ? (
-              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <div className="text-sm font-medium">Share URL</div>
 
@@ -632,7 +650,7 @@ async function handleSendByEmail() {
                     type="button"
                     onClick={() => void handleCopyShareLink()}
                     disabled={isCopyingShareLink}
-                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium"
+                    className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                   >
                     {isCopyingShareLink ? "Copying..." : "Copy Link"}
                   </button>
@@ -642,15 +660,15 @@ async function handleSendByEmail() {
               </div>
             ) : null}
 
-            <div className="mt-6 border-t pt-4">
-              <h3 className="mb-3 text-base font-semibold">Send by Email</h3>
+            <div className="mt-6 border-t border-slate-200 pt-5">
+              <h3 className="mb-4 text-lg font-semibold text-slate-900">Send by Email</h3>
 
               <div className="grid gap-4">
                 <div>
                   <label className="mb-1 block text-sm font-medium">Recipient Email</label>
                   <input
                     type="email"
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                    className={inputClassName}
                     value={emailTo}
                     onChange={(event) => setEmailTo(event.target.value)}
                   />
@@ -659,7 +677,7 @@ async function handleSendByEmail() {
                 <div>
                   <label className="mb-1 block text-sm font-medium">Subject</label>
                   <input
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                    className={inputClassName}
                     value={emailSubject}
                     onChange={(event) => setEmailSubject(event.target.value)}
                   />
@@ -668,7 +686,7 @@ async function handleSendByEmail() {
                 <div>
                   <label className="mb-1 block text-sm font-medium">Message</label>
                   <textarea
-                    className="min-h-24 w-full rounded-xl border border-slate-300 px-3 py-2"
+                    className={textareaClassName}
                     value={emailMessage}
                     onChange={(event) => setEmailMessage(event.target.value)}
                   />
@@ -678,7 +696,7 @@ async function handleSendByEmail() {
                   type="button"
                   onClick={() => void handleSendByEmail()}
                   disabled={isSendingEmail}
-                  className="rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-60"
+                  className="rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60"
                 >
                   {isSendingEmail ? "Sending..." : "Send by Email"}
                 </button>
@@ -686,7 +704,6 @@ async function handleSendByEmail() {
             </div>
           </section>
         ) : null}
-
       </form>
     </div>
   );
