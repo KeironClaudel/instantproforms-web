@@ -1,5 +1,6 @@
 import { useEffect, type PropsWithChildren } from "react";
 import { useAuth } from "@/app/providers/useAuth";
+import { PwaManager } from "@/components/pwa/PwaManager";
 
 export function AppBootstrap({ children }: PropsWithChildren) {
   const { hydrateSession } = useAuth();
@@ -8,5 +9,10 @@ export function AppBootstrap({ children }: PropsWithChildren) {
     void hydrateSession();
   }, [hydrateSession]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <PwaManager />
+    </>
+  );
 }

@@ -28,3 +28,13 @@ export type CreateProformResponse = {
   taxAmount: number;
   total: number;
 };
+
+export type CreateProformResult =
+  | {
+      type: "created";
+      response: CreateProformResponse;
+    }
+  | {
+      type: "queued";
+      queueId: string;
+    };

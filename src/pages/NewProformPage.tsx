@@ -28,7 +28,7 @@ function createEmptyItem(): ProformItemDraft {
 }
 
 export function NewProformPage() {
-  const { companySettings } = useAuth();
+  const { companySettings, user } = useAuth();
 
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
@@ -60,6 +60,10 @@ export function NewProformPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isCreatingShareLink, setIsCreatingShareLink] = useState(false);
   const [isCopyingShareLink, setIsCopyingShareLink] = useState(false);
+  const [queuedNotice, setQueuedNotice] = useState<{
+    queueId: string;
+    clientName: string;
+  } | null>(null);
 
   const inputClassName =
   "w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
@@ -96,8 +100,17 @@ const textareaClassName =
     setFeedback(null);
   }
 
+  function resetDraftForm() {
+    setClientName("");
+    setClientEmail("");
+    setClientPhone("");
+    setNotes("");
+    setItems([createEmptyItem()]);
+  }
+
   async function handleCopyShareLink() {
     clearFeedback();
+    setQueuedNotice(null);
     if (!shareUrlValue) {
     setFeedback(createErrorFeedback("There is no share link to copy yet."));
     return;
@@ -273,7 +286,7 @@ async function handleSendByEmail() {
     setIsSubmitting(true);
 
     try {
-      const response = await createProform(
+      const result = await createProform(
         {
           clientName: clientName.trim(),
           clientEmail: clientEmail.trim() || null,
@@ -281,11 +294,36 @@ async function handleSendByEmail() {
           notes: notes.trim() || null,
           items: normalizedItems,
         },
+        user
+          ? {
+              queueContext: {
+                companyId: user.companyId,
+                userId: user.userId,
+              },
+            }
+          : undefined,
       );
 
-      console.log("Create proform response:", response);
+      if (result.type === "queued") {
+        setCreatedProform(null);
+        setShareUrlValue(null);
+        setQueuedNotice({
+          queueId: result.queueId,
+          clientName: clientName.trim(),
+        });
+        setFeedback(
+          createSuccessFeedback(
+            "No connection was available. The proform was queued and will retry automatically when the network returns.",
+          ),
+        );
+        resetDraftForm();
+        return;
+      }
+
+      const response = result.response;
 
       setFeedback(createSuccessFeedback(`Proform ${response.number} created successfully.`));
+      setQueuedNotice(null);
       setCreatedProform({
         id: response.proformId,
         number: response.number,
@@ -299,11 +337,7 @@ async function handleSendByEmail() {
       setEmailTo(clientEmail.trim());
       setEmailSubject(`Proform ${response.number}`);
       setEmailMessage("");
-      setClientName("");
-      setClientEmail("");
-      setClientPhone("");
-      setNotes("");
-      setItems([createEmptyItem()]);
+      resetDraftForm();
     } catch {
       setFeedback(createErrorFeedback("Failed to create the proform."));
     } finally {
@@ -503,6 +537,13 @@ async function handleSendByEmail() {
         >
           {isSubmitting ? "Creating proform..." : "Create Proform"}
         </button>
+
+        {queuedNotice ? (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-sm text-amber-800 shadow-sm">
+            Proform for <span className="font-semibold">{queuedNotice.clientName}</span> is queued for
+            sync. Queue ID: <span className="font-mono">{queuedNotice.queueId}</span>
+          </div>
+        ) : null}
 
         {!createdProform ? (
           <EmptyState
