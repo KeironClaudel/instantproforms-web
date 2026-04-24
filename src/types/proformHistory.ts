@@ -1,7 +1,7 @@
 export type ProformListItem = {
   id: string;
   number: string;
-  status: string;
+  status?: string;
   clientName: string;
   clientEmail: string | null;
   clientPhone: string | null;
