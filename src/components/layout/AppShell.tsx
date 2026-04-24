@@ -69,7 +69,7 @@ export function AppShell() {
                 New Proform
               </NavLink>
 
-              <NavLink to="/app/proforms" className={navLinkClassName}>
+              <NavLink to="/app/proforms" end className={navLinkClassName}>
                 Proforms
               </NavLink>
 
@@ -104,7 +104,7 @@ export function AppShell() {
               New Proform
             </NavLink>
 
-            <NavLink to="/app/proforms" className={navLinkClassName}>
+            <NavLink to="/app/proforms" end className={navLinkClassName}>
               Proforms
             </NavLink>
 
