@@ -4,11 +4,17 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useAuth } from "@/app/providers/useAuth";
-import { downloadProformPdf, updateProformStatus } from "@/lib/api/proformActionsApi";
+import {
+  createProformShareLink,
+  downloadProformPdf,
+  sendProformByEmail,
+  updateProformStatus,
+} from "@/lib/api/proformActionsApi";
 import { getProformById } from "@/lib/api/proformHistoryApi";
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
+import { shareUrl } from "@/lib/utils/share";
 import type { ProformDetails } from "@/types/proformHistory";
 
 const editableStatuses = ["Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
@@ -29,6 +35,8 @@ export function ProformDetailsPage() {
   const [proform, setProform] = useState<ProformDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
+  const [isSendingToMyEmail, setIsSendingToMyEmail] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("Draft");
   const [feedback, setFeedback] = useState<{
@@ -76,6 +84,67 @@ export function ProformDetailsPage() {
       setFeedback(createErrorFeedback("Failed to download the PDF."));
     } finally {
       setIsDownloading(false);
+    }
+  }
+
+  async function handleShare() {
+    if (!proform?.id) {
+      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      return;
+    }
+
+    try {
+      setIsSharing(true);
+      const response = await createProformShareLink(proform.id);
+      const shared = await shareUrl(`Proform ${proform.number}`, response.shareUrl);
+
+      if (!shared) {
+        setFeedback(createErrorFeedback("Native share is not available on this device."));
+        return;
+      }
+
+      setFeedback(createSuccessFeedback("Share sheet opened successfully."));
+    } catch {
+      setFeedback(createErrorFeedback("Failed to share the proform."));
+    } finally {
+      setIsSharing(false);
+    }
+  }
+
+  async function handleSendToMyEmail() {
+    if (!proform?.id) {
+      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      return;
+    }
+
+    if (!proform.clientEmail) {
+      setFeedback(createErrorFeedback("This proform does not have a client email address."));
+      return;
+    }
+
+    try {
+      setIsSendingToMyEmail(true);
+      const response = await sendProformByEmail({
+        proformId: proform.id,
+        toEmail: proform.clientEmail,
+        subject: `Proform ${proform.number}`,
+        message: null,
+      });
+
+      setProform((current) =>
+        current
+          ? {
+              ...current,
+              status: response.status,
+            }
+          : current,
+      );
+      setSelectedStatus(response.status);
+      setFeedback(createSuccessFeedback(`Proform ${proform.number} was sent to ${proform.clientEmail}.`));
+    } catch {
+      setFeedback(createErrorFeedback("Failed to send the proform to the client email."));
+    } finally {
+      setIsSendingToMyEmail(false);
     }
   }
 
@@ -158,6 +227,24 @@ export function ProformDetailsPage() {
             className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
             {isDownloading ? "Downloading..." : "Download PDF"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void handleShare()}
+            disabled={isSharing}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSharing ? "Sharing..." : "Share"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => void handleSendToMyEmail()}
+            disabled={isSendingToMyEmail || !proform.clientEmail}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSendingToMyEmail ? "Sending..." : "Send to Client Email"}
           </button>
         </div>
       </div>
