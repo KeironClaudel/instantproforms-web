@@ -54,6 +54,14 @@ export function ProformsListPage() {
     return <PageLoader message="Loading proforms..." />;
   }
 
+  function formatMoney(value: number | null | undefined): string {
+  return (value ?? 0).toFixed(2);
+  }
+
+  function formatPercent(value: number | null | undefined): string {
+    return `${value ?? 0}%`;
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-1 sm:px-0">
       <SectionHeader
@@ -116,17 +124,17 @@ export function ProformsListPage() {
                     <span className="text-slate-500">Subtotal</span>
                     <span className="font-medium text-slate-800">
                       {currencySymbol}
-                      {proform.subtotal.toFixed(2)}
+                      {formatMoney(proform.subtotal)}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">
-                      {companySettings?.taxLabel ?? "Tax"} ({proform.taxPercentage}%)
+                      {companySettings?.taxLabel ?? "Tax"} ({formatPercent(proform.taxPercentage)})
                     </span>
                     <span className="font-medium text-slate-800">
                       {currencySymbol}
-                      {proform.taxAmount.toFixed(2)}
+                      {formatMoney(proform.taxAmount)}
                     </span>
                   </div>
 
@@ -134,7 +142,7 @@ export function ProformsListPage() {
                     <span>Total</span>
                     <span>
                       {currencySymbol}
-                      {proform.total.toFixed(2)}
+                      {formatMoney(proform.total)}
                     </span>
                   </div>
                 </div>
