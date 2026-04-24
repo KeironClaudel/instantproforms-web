@@ -20,11 +20,25 @@ function resolveCompanyAssetUrl(url: string | null): string | null {
     return null;
   }
 
+  const isProxyMode = !configuredApiBaseUrl || configuredApiBaseUrl === "/";
+
   if (/^https?:\/\//i.test(url)) {
+    if (isProxyMode) {
+      const apiPublicOrigin = getApiPublicOrigin();
+
+      if (apiPublicOrigin) {
+        const parsedUrl = new URL(url);
+
+        if (parsedUrl.origin === apiPublicOrigin) {
+          return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+        }
+      }
+    }
+
     return url;
   }
 
-  if (!configuredApiBaseUrl || configuredApiBaseUrl === "/") {
+  if (isProxyMode) {
     return url;
   }
 
