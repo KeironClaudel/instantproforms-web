@@ -35,6 +35,10 @@
       "destination": "https://instantproformsapi.onrender.com/api/:path*"
     },
     {
+      "source": "/api/uploads/:path*",
+      "destination": "https://instantproformsapi.onrender.com/uploads/:path*"
+    },
+    {
       "source": "/uploads/:path*",
       "destination": "https://instantproformsapi.onrender.com/uploads/:path*"
     },

@@ -30,7 +30,11 @@ function resolveCompanyAssetUrl(url: string | null): string | null {
         const parsedUrl = new URL(url);
 
         if (parsedUrl.origin === apiPublicOrigin) {
-          return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+          const proxiedPath = parsedUrl.pathname.startsWith("/uploads/")
+            ? `/api${parsedUrl.pathname}`
+            : parsedUrl.pathname;
+
+          return `${proxiedPath}${parsedUrl.search}${parsedUrl.hash}`;
         }
       }
     }
@@ -39,7 +43,7 @@ function resolveCompanyAssetUrl(url: string | null): string | null {
   }
 
   if (isProxyMode) {
-    return url;
+    return url.startsWith("/uploads/") ? `/api${url}` : url;
   }
 
   const apiPublicOrigin = getApiPublicOrigin();
