@@ -4,11 +4,14 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useAuth } from "@/app/providers/useAuth";
-import { downloadProformPdf } from "@/lib/api/proformActionsApi";
+import { downloadProformPdf, updateProformStatus } from "@/lib/api/proformActionsApi";
 import { getProformById } from "@/lib/api/proformHistoryApi";
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
+import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
 import type { ProformDetails } from "@/types/proformHistory";
+
+const editableStatuses = ["Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -26,6 +29,8 @@ export function ProformDetailsPage() {
   const [proform, setProform] = useState<ProformDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("Draft");
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
@@ -45,6 +50,7 @@ export function ProformDetailsPage() {
         setIsLoading(true);
         const data = await getProformById(id);
         setProform(data);
+        setSelectedStatus(data.status);
       } catch {
         setFeedback(createErrorFeedback("Failed to load proform details."));
       } finally {
@@ -70,6 +76,41 @@ export function ProformDetailsPage() {
       setFeedback(createErrorFeedback("Failed to download the PDF."));
     } finally {
       setIsDownloading(false);
+    }
+  }
+
+  async function handleUpdateStatus() {
+    if (!proform?.id) {
+      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      return;
+    }
+
+    if (selectedStatus === proform.status) {
+      setFeedback(createErrorFeedback("Select a different status before saving."));
+      return;
+    }
+
+    try {
+      setIsUpdatingStatus(true);
+      const response = await updateProformStatus({
+        proformId: proform.id,
+        status: selectedStatus,
+      });
+
+      setProform((current) =>
+        current
+          ? {
+              ...current,
+              status: response.status,
+            }
+          : current,
+      );
+      setSelectedStatus(response.status);
+      setFeedback(createSuccessFeedback(response.message));
+    } catch {
+      setFeedback(createErrorFeedback("Failed to update the proform status."));
+    } finally {
+      setIsUpdatingStatus(false);
     }
   }
 
@@ -148,7 +189,13 @@ export function ProformDetailsPage() {
 
               <div className="rounded-2xl bg-slate-50 p-4">
                 <div className="text-xs uppercase tracking-wide text-slate-500">Status</div>
-                <div className="mt-1 font-semibold text-slate-900">{proform.status}</div>
+                <div className="mt-2">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getProformStatusBadgeClassName(proform.status)}`}
+                  >
+                    {proform.status}
+                  </span>
+                </div>
               </div>
 
               <div className="rounded-2xl bg-slate-50 p-4">
@@ -174,6 +221,39 @@ export function ProformDetailsPage() {
                 </div>
               </div>
             ) : null}
+          </section>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
+              Update Status
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Status</label>
+                <select
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
+                  value={selectedStatus}
+                  onChange={(event) => setSelectedStatus(event.target.value)}
+                  disabled={isUpdatingStatus}
+                >
+                  {editableStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void handleUpdateStatus()}
+                disabled={isUpdatingStatus || selectedStatus === proform.status}
+                className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isUpdatingStatus ? "Saving..." : "Save Status"}
+              </button>
+            </div>
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

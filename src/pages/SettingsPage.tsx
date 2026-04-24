@@ -8,7 +8,6 @@ import {
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import type { CompanySettings } from "@/types/company";
 import { PageLoader } from "@/components/ui/PageLoader";
-import { SectionHeader } from "@/components/ui/SectionHeader";
 
 type FeedbackState = {
   type: "success" | "error";

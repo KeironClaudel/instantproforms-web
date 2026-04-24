@@ -14,6 +14,7 @@ import { shareUrl } from "@/lib/utils/share";
 import type { CreatedProformSummary } from "@/types/proformActions";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
+import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 
@@ -207,7 +208,7 @@ async function handleSendByEmail() {
   setIsSendingEmail(true);
 
   try {
-    await sendProformByEmail(
+    const response = await sendProformByEmail(
       {
         proformId: createdProform.id,
         toEmail: emailTo.trim(),
@@ -216,6 +217,14 @@ async function handleSendByEmail() {
       },
     );
 
+    setCreatedProform((current) =>
+      current
+        ? {
+            ...current,
+            status: response.status,
+          }
+        : current,
+    );
     setFeedback(createSuccessFeedback(`Proform ${createdProform.number} was sent successfully.`));
   } catch {
     setFeedback(createErrorFeedback("Failed to send the proform by email."));
@@ -516,7 +525,9 @@ async function handleSendByEmail() {
                   </h2>
 
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                    <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
+                    <span
+                      className={`rounded-full px-3 py-1 font-medium ${getProformStatusBadgeClassName(createdProform.status)}`}
+                    >
                       Status: {createdProform.status}
                     </span>
 
