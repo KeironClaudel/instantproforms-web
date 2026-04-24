@@ -14,7 +14,7 @@ import { getProformById } from "@/lib/api/proformHistoryApi";
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
-import { shareUrl } from "@/lib/utils/share";
+import { shareFile, shareUrl } from "@/lib/utils/share";
 import type { ProformDetails } from "@/types/proformHistory";
 
 const editableStatuses = ["Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
@@ -95,6 +95,21 @@ export function ProformDetailsPage() {
 
     try {
       setIsSharing(true);
+
+      const pdfBlob = await downloadProformPdf(proform.id);
+      const pdfFile = new File([pdfBlob], `${proform.number}.pdf`, {
+        type: pdfBlob.type || "application/pdf",
+      });
+      const sharedAsFile = await shareFile(pdfFile, {
+        title: `Proform ${proform.number}`,
+        text: `Proform ${proform.number}`,
+      });
+
+      if (sharedAsFile) {
+        setFeedback(createSuccessFeedback("PDF share sheet opened successfully."));
+        return;
+      }
+
       const response = await createProformShareLink(proform.id);
       const shared = await shareUrl(`Proform ${proform.number}`, response.shareUrl);
 

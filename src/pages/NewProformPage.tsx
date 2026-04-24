@@ -10,7 +10,7 @@ import { useAuth } from "@/app/providers/useAuth";
 import type { ProformItemDraft } from "@/types/proform";
 import { downloadProformPdf, createProformShareLink, sendProformByEmail } from "@/lib/api/proformActionsApi";
 import { downloadBlobFile } from "@/lib/utils/fileDownload";
-import { shareUrl } from "@/lib/utils/share";
+import { shareFile, shareUrl } from "@/lib/utils/share";
 import type { CreatedProformSummary } from "@/types/proformActions";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
@@ -184,6 +184,20 @@ async function handleNativeShare() {
   try {
     setIsSharing(true);
 
+    const pdfBlob = await downloadProformPdf(createdProform.id);
+    const pdfFile = new File([pdfBlob], `${createdProform.number}.pdf`, {
+      type: pdfBlob.type || "application/pdf",
+    });
+    const sharedAsFile = await shareFile(pdfFile, {
+      title: `Proform ${createdProform.number}`,
+      text: `Proform ${createdProform.number}`,
+    });
+
+    if (sharedAsFile) {
+      setFeedback(createSuccessFeedback("PDF share sheet opened successfully."));
+      return;
+    }
+
     let finalUrl = shareUrlValue;
 
     if (!finalUrl) {
@@ -193,12 +207,13 @@ async function handleNativeShare() {
     }
 
     const shared = await shareUrl(`Proform ${createdProform.number}`, finalUrl);
-    setFeedback(createSuccessFeedback("Share sheet opened successfully."));
 
     if (!shared) {
       setFeedback(createErrorFeedback("Native share is not available on this device."));
       return;
     }
+
+    setFeedback(createSuccessFeedback("Share sheet opened successfully."));
   } catch {
   setFeedback(createErrorFeedback("Failed to share the proform."));
 } finally {
