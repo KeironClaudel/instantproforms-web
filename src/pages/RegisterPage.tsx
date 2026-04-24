@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { registerCompany } from "@/lib/api/authApi";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
@@ -13,6 +14,7 @@ The company is not responsible for damage caused by overloads, defective equipme
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const submitLockRef = useRef(false);
 
   const [form, setForm] = useState({
     companyName: "",
@@ -71,8 +73,37 @@ export function RegisterPage() {
     }));
   }
 
+  function getRegisterErrorMessage(error: unknown): string {
+    if (!axios.isAxiosError(error)) {
+      return "Failed to register the company.";
+    }
+
+    const responseData = error.response?.data;
+
+    if (typeof responseData === "string" && responseData.trim()) {
+      return responseData;
+    }
+
+    if (
+      responseData &&
+      typeof responseData === "object" &&
+      "message" in responseData &&
+      typeof responseData.message === "string" &&
+      responseData.message.trim()
+    ) {
+      return responseData.message;
+    }
+
+    return "Failed to register the company.";
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (submitLockRef.current) {
+      return;
+    }
+
     setFeedback(null);
 
     const parsedTaxPercentage = Number(form.taxPercentage);
@@ -126,6 +157,7 @@ export function RegisterPage() {
       return;
     }
 
+    submitLockRef.current = true;
     setIsSubmitting(true);
 
     try {
@@ -157,9 +189,10 @@ export function RegisterPage() {
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 900);
-    } catch {
-      setFeedback(createErrorFeedback("Failed to register the company."));
+    } catch (error) {
+      setFeedback(createErrorFeedback(getRegisterErrorMessage(error)));
     } finally {
+      submitLockRef.current = false;
       setIsSubmitting(false);
     }
   }

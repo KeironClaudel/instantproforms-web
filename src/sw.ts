@@ -11,7 +11,10 @@ import { processQueue, PROFORM_QUEUE_SYNC_TAG } from "./lib/offline/requestQueue
 declare let self: ServiceWorkerGlobalScope;
 type BackgroundSyncEvent = ExtendableEvent & { tag: string };
 
-const apiOrigin = new URL(import.meta.env.VITE_API_BASE_URL).origin;
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || "/";
+const apiOrigin = configuredApiBaseUrl.startsWith("http")
+  ? new URL(configuredApiBaseUrl).origin
+  : self.location.origin;
 
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();

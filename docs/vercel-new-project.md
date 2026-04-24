@@ -7,8 +7,10 @@ This repo is prepared to be deployed as a **new** Vercel project.
 Set this environment variable in Vercel for the new project:
 
 ```bash
-VITE_API_BASE_URL=https://instantproformsapi.onrender.com
+VITE_API_BASE_URL=/
 ```
+
+In production, the frontend should call the API through the same Vercel origin. The root [`vercel.json`](../vercel.json) proxies `/api/*` to `https://instantproformsapi.onrender.com/api/*`.
 
 The tracked template file [`.env.production.template`](../.env.production.template) exists only as a reference. Do not commit a real production `.env` file.
 
@@ -30,18 +32,19 @@ The tracked template file [`.env.production.template`](../.env.production.templa
 
 The root [`vercel.json`](../vercel.json) does two things:
 
+- Proxies `/api/*` to the Render backend so auth cookies and CSRF work as same-origin requests from the browser
 - Rewrites SPA routes like `/login` and `/app/proforms/:id` back to `index.html`
 - Forces fresh validation for `index.html`, `manifest.webmanifest`, and `sw.js` so the PWA update flow behaves correctly on Vercel
 
 ## Backend Compatibility Checklist
 
-Because the frontend will run on a Vercel domain and the API on Render, the backend must allow the frontend origin.
+Because Vercel will proxy `/api/*` to Render, the browser talks to the Vercel origin while Vercel forwards requests to the backend service.
 
 Verify on the Render API:
 
-- CORS allows the final Vercel frontend URL
-- credentialed requests are enabled if auth cookies are required
-- cookies are configured for cross-site usage when applicable
+- requests forwarded from Vercel are accepted
+- credentialed auth still works end to end
+- CSRF validation accepts the proxied request flow
 - HTTPS is enabled end to end
 
 ## After Deploy
@@ -53,4 +56,5 @@ Check these in the deployed app:
 - `manifest.webmanifest` returns successfully
 - `sw.js` returns successfully
 - install prompt and offline shell still work
-- API calls go to `https://instantproformsapi.onrender.com`
+- browser requests go to `/api/*` on the Vercel domain
+- Vercel forwards those `/api/*` requests to `https://instantproformsapi.onrender.com`

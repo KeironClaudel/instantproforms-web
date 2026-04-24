@@ -32,6 +32,14 @@ function buildCreateProformUrl(): string {
     throw new Error("API base URL is not configured for queued proform creation.");
   }
 
+  if (baseUrl.startsWith("/")) {
+    if (typeof window === "undefined") {
+      throw new Error("Window origin is not available for queued proform creation.");
+    }
+
+    return new URL("/api/proforms", window.location.origin).toString();
+  }
+
   return new URL("/api/proforms", baseUrl).toString();
 }
 
