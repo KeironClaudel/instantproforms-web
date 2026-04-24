@@ -68,7 +68,7 @@ export function SettingsPage() {
     async function loadSettings() {
       try {
         setIsLoading(true);
-        const settings = await getCurrentCompanySettings();
+        const settings = await getCurrentCompanySettings(true);
         setForm(buildFormState(settings));
       } catch {
         setFeedback(createErrorFeedback("Failed to load company settings."));

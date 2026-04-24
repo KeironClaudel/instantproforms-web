@@ -32,7 +32,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setUser(currentUser);
 
       try {
-        const settings = await getCompanySettings();
+        const settings = await getCompanySettings(true);
         setCompanySettings(settings);
       } catch {
         setCompanySettings(null);
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setUser(currentUser);
 
         try {
-          const settings = await getCompanySettings();
+          const settings = await getCompanySettings(true);
           setCompanySettings(settings);
         } catch {
           setCompanySettings(null);
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     try {
-      const settings = await getCompanySettings();
+      const settings = await getCompanySettings(true);
       setCompanySettings(settings);
     } catch {
       setCompanySettings(null);
