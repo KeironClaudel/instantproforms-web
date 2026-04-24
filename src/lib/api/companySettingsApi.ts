@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/apiClient";
+import { normalizeCompanySettings } from "@/lib/utils/companySettings";
 import type { CompanySettings } from "@/types/company";
 
 export type UpdateCompanySettingsRequest = {
@@ -21,7 +22,7 @@ export type UpdateCompanySettingsRequest = {
 
 export async function getCurrentCompanySettings(): Promise<CompanySettings> {
   const { data } = await apiClient.get<CompanySettings>("/api/company-settings");
-  return data;
+  return normalizeCompanySettings(data);
 }
 
 export async function updateCompanySettings(
