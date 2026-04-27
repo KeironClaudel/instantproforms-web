@@ -84,6 +84,11 @@ export function LoginPage() {
               autoComplete="current-password"
               required
             />
+            <div className="mt-2 text-right">
+              <Link to="/forgot-password" className="text-sm font-medium text-slate-900 underline">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           {errorMessage ? (

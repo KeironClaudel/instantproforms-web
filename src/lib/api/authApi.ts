@@ -19,6 +19,37 @@ export async function refreshToken(): Promise<void> {
   await apiClient.post("/api/auth/refresh");
 }
 
+export type ForgotPasswordRequest = {
+  email: string;
+};
+
+export type ForgotPasswordResponse = {
+  message: string;
+};
+
+export async function forgotPassword(
+  request: ForgotPasswordRequest,
+): Promise<ForgotPasswordResponse> {
+  const { data } = await apiClient.post<ForgotPasswordResponse>("/api/auth/forgot-password", request);
+  return data;
+}
+
+export type ResetPasswordRequest = {
+  token: string;
+  newPassword: string;
+};
+
+export type ResetPasswordResponse = {
+  message: string;
+};
+
+export async function resetPassword(
+  request: ResetPasswordRequest,
+): Promise<ResetPasswordResponse> {
+  const { data } = await apiClient.post<ResetPasswordResponse>("/api/auth/reset-password", request);
+  return data;
+}
+
 export type RegisterCompanyRequest = {
   companyName: string;
   companySlug: string;
