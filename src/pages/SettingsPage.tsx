@@ -1,180 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/app/providers/useAuth";
-import {
-  getCurrentCompanySettings,
-  replaceCompanyLogo,
-  updateCompanySettings,
-} from "@/lib/api/companySettingsApi";
-import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
-import type { CompanySettings } from "@/types/company";
 import { PageLoader } from "@/components/ui/PageLoader";
-
-type FeedbackState = {
-  type: "success" | "error";
-  message: string;
-} | null;
-
-function buildFormState(settings: CompanySettings) {
-  return {
-    displayName: settings.displayName ?? "",
-    legalName: settings.legalName ?? "",
-    website: settings.website ?? "",
-    phone: settings.phone ?? "",
-    email: settings.email ?? "",
-    address: settings.address ?? "",
-    termsAndConditions: settings.termsAndConditions ?? "",
-    logoFileName: settings.logoFileName ?? "",
-    primaryColor: settings.primaryColor ?? "#1B2D5A",
-    secondaryColor: settings.secondaryColor ?? "#e6c7f0",
-    accentColor: settings.accentColor ?? "#dbe2ff",
-    proformPrefix: settings.proformPrefix ?? "PRO",
-    taxPercentage: String(settings.taxPercentage ?? 0),
-    currencySymbol: settings.currencySymbol ?? "₡",
-    taxLabel: settings.taxLabel ?? "Tax",
-  };
-}
+import { useSettingsPage } from "@/hooks/pages/company/useSettingsPage";
 
 export function SettingsPage() {
-  const { companySettings, refreshCompanySettings } = useAuth();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [feedback, setFeedback] = useState<FeedbackState>(null);
-
-  const [form, setForm] = useState(() =>
-    companySettings
-      ? buildFormState(companySettings)
-      : {
-          displayName: "",
-          legalName: "",
-          website: "",
-          phone: "",
-          email: "",
-          address: "",
-          termsAndConditions: "",
-          logoFileName: "",
-          primaryColor: "#1B2D5A",
-          secondaryColor: "#e6c7f0",
-          accentColor: "#dbe2ff",
-          proformPrefix: "PRO",
-          taxPercentage: "0",
-          currencySymbol: "₡",
-          taxLabel: "Tax",
-        },
-  );
-
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        setIsLoading(true);
-        const settings = await getCurrentCompanySettings(true);
-        setForm(buildFormState(settings));
-      } catch {
-        setFeedback(createErrorFeedback("Failed to load company settings."));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadSettings();
-  }, []);
+  const {
+    companySettings,
+    feedback,
+    form,
+    handleLogoChange,
+    handleSubmit,
+    isLoading,
+    isSaving,
+    isUploadingLogo,
+    previewStyles,
+    updateField,
+  } = useSettingsPage();
 
   const inputClassName =
     "w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
 
   const textareaClassName =
     "min-h-32 w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
-
-  const previewStyles = useMemo(
-    () => ({
-      primaryColor: form.primaryColor || "#1B2D5A",
-      secondaryColor: form.secondaryColor || "#e6c7f0",
-      accentColor: form.accentColor || "#dbe2ff",
-      displayName: form.displayName || "Your Company",
-      prefix: form.proformPrefix || "PRO",
-      taxPercentage: form.taxPercentage || "0",
-      currencySymbol: form.currencySymbol || "₡",
-      taxLabel: form.taxLabel || "Tax",
-    }),
-    [form],
-  );
-
-  function clearFeedback() {
-    setFeedback(null);
-  }
-
-  function updateField<K extends keyof typeof form>(field: K, value: (typeof form)[K]) {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-    }));
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    clearFeedback();
-
-    const parsedTaxPercentage = Number(form.taxPercentage);
-
-    if (!Number.isFinite(parsedTaxPercentage) || parsedTaxPercentage < 0 || parsedTaxPercentage > 100) {
-      setFeedback(createErrorFeedback("Tax percentage must be between 0 and 100."));
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      await updateCompanySettings(
-        {
-          displayName: form.displayName.trim(),
-          legalName: form.legalName.trim() || null,
-          website: form.website.trim() || null,
-          phone: form.phone.trim() || null,
-          email: form.email.trim() || null,
-          address: form.address.trim() || null,
-          termsAndConditions: form.termsAndConditions.trim() || null,
-          logoFileName: form.logoFileName.trim() || null,
-          primaryColor: form.primaryColor.trim() || null,
-          secondaryColor: form.secondaryColor.trim() || null,
-          accentColor: form.accentColor.trim() || null,
-          proformPrefix: form.proformPrefix.trim(),
-          taxPercentage: parsedTaxPercentage,
-          currencySymbol: form.currencySymbol.trim(),
-          taxLabel: form.taxLabel.trim(),
-        },
-      );
-
-      await refreshCompanySettings();
-      setFeedback(createSuccessFeedback("Company settings updated successfully."));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to update company settings."));
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  async function handleLogoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    clearFeedback();
-
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    setIsUploadingLogo(true);
-
-    try {
-      await replaceCompanyLogo(file);
-      await refreshCompanySettings();
-      setFeedback(createSuccessFeedback("Company logo updated successfully."));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to update the company logo."));
-    } finally {
-      setIsUploadingLogo(false);
-      event.target.value = "";
-    }
-  }
 
   if (isLoading) {
     return <PageLoader message="Loading company settings..." />;

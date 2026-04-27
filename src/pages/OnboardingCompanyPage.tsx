@@ -1,132 +1,31 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/app/providers/useAuth";
-import {
-  replaceCompanyLogo,
-  updateCompanySettings,
-} from "@/lib/api/companySettingsApi";
-import { isCompanySetupComplete } from "@/lib/utils/companySetup";
-import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
+import { Navigate } from "react-router-dom";
+import { useOnboardingCompanyPage } from "@/hooks/pages/company/useOnboardingCompanyPage";
 
 export function OnboardingCompanyPage() {
-  const navigate = useNavigate();
-  const { companySettings, refreshCompanySettings, isLoading } = useAuth();
-
-  const [displayName, setDisplayName] = useState(companySettings?.displayName ?? "");
-  const [proformPrefix, setProformPrefix] = useState(companySettings?.proformPrefix ?? "PRO");
-  const [taxPercentage, setTaxPercentage] = useState(
-    String(companySettings?.taxPercentage ?? 13),
-  );
-  const [currencySymbol, setCurrencySymbol] = useState(
-    companySettings?.currencySymbol ?? "₡",
-  );
-  const [taxLabel, setTaxLabel] = useState(companySettings?.taxLabel ?? "Tax");
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-  const hasHydratedFormRef = useRef(false);
-
-  useEffect(() => {
-    if (!companySettings || hasHydratedFormRef.current) {
-      return;
-    }
-
-    setDisplayName(companySettings.displayName ?? "");
-    setProformPrefix(companySettings.proformPrefix ?? "PRO");
-    setTaxPercentage(String(companySettings.taxPercentage ?? 13));
-    setCurrencySymbol(companySettings.currencySymbol ?? "₡");
-    setTaxLabel(companySettings.taxLabel ?? "Tax");
-    hasHydratedFormRef.current = true;
-  }, [companySettings]);
+  const {
+    currencySymbol,
+    displayName,
+    feedback,
+    handleLogoChange,
+    handleSubmit,
+    isSubmitting,
+    preview,
+    proformPrefix,
+    setCurrencySymbol,
+    setDisplayName,
+    setProformPrefix,
+    setTaxLabel,
+    setTaxPercentage,
+    shouldRedirect,
+    taxLabel,
+    taxPercentage,
+  } = useOnboardingCompanyPage();
 
   const inputClassName =
     "w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
 
-  const preview = useMemo(
-    () => ({
-      displayName: displayName.trim() || "Your Company",
-      prefix: proformPrefix.trim() || "PRO",
-      tax: taxPercentage.trim() || "0",
-      currency: currencySymbol.trim() || "₡",
-      taxLabel: taxLabel.trim() || "Tax",
-    }),
-    [currencySymbol, displayName, proformPrefix, taxLabel, taxPercentage],
-  );
-
-  if (!isLoading && isCompanySetupComplete(companySettings)) {
+  if (shouldRedirect) {
     return <Navigate to="/app" replace />;
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFeedback(null);
-
-    const parsedTaxPercentage = Number(taxPercentage);
-
-    if (!displayName.trim()) {
-      setFeedback(createErrorFeedback("Display name is required."));
-      return;
-    }
-
-    if (!proformPrefix.trim()) {
-      setFeedback(createErrorFeedback("Proform prefix is required."));
-      return;
-    }
-
-    if (!currencySymbol.trim()) {
-      setFeedback(createErrorFeedback("Currency symbol is required."));
-      return;
-    }
-
-    if (
-      !Number.isFinite(parsedTaxPercentage) ||
-      parsedTaxPercentage < 0 ||
-      parsedTaxPercentage > 100
-    ) {
-      setFeedback(createErrorFeedback("Tax percentage must be between 0 and 100."));
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      await updateCompanySettings(
-        {
-          displayName: displayName.trim(),
-          legalName: companySettings?.legalName ?? null,
-          website: companySettings?.website ?? null,
-          phone: companySettings?.phone ?? null,
-          email: companySettings?.email ?? null,
-          address: companySettings?.address ?? null,
-          termsAndConditions: companySettings?.termsAndConditions ?? null,
-          logoFileName: companySettings?.logoFileName ?? null,
-          primaryColor: companySettings?.primaryColor ?? "#1B2D5A",
-          secondaryColor: companySettings?.secondaryColor ?? "#e6c7f0",
-          accentColor: companySettings?.accentColor ?? "#dbe2ff",
-          proformPrefix: proformPrefix.trim(),
-          taxPercentage: parsedTaxPercentage,
-          currencySymbol: currencySymbol.trim(),
-          taxLabel: taxLabel.trim() || "Tax",
-        },
-      );
-
-      if (logoFile) {
-        await replaceCompanyLogo(logoFile);
-      }
-
-      await refreshCompanySettings();
-
-      setFeedback(createSuccessFeedback("Company setup completed successfully."));
-      navigate("/app/proforms/new", { replace: true });
-    } catch {
-      setFeedback(createErrorFeedback("Failed to complete company setup."));
-    } finally {
-      setIsSubmitting(false);
-    }
   }
 
   return (
@@ -223,7 +122,7 @@ export function OnboardingCompanyPage() {
                 type="file"
                 accept=".png,.jpg,.jpeg,.webp"
                 className={inputClassName}
-                onChange={(event) => setLogoFile(event.target.files?.[0] ?? null)}
+                onChange={handleLogoChange}
               />
             </div>
           </div>

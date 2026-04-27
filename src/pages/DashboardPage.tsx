@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "@/app/providers/useAuth";
-import { isCompanySetupComplete } from "@/lib/utils/companySetup";
+import { useDashboardPage } from "@/hooks/pages/dashboard/useDashboardPage";
 
 function InfoCard({
   title,
@@ -47,19 +46,20 @@ function QuickAction({
 }
 
 export function DashboardPage() {
-  const { user, companySettings } = useAuth();
-  const isSetupComplete = isCompanySetupComplete(companySettings);
-
-  const companyName = companySettings?.displayName?.trim() || "Your Company";
-  const prefix = companySettings?.proformPrefix?.trim() || "-";
-  const taxPercentage =
-    companySettings && Number.isFinite(companySettings.taxPercentage)
-      ? `${companySettings.taxPercentage}%`
-      : "-";
-  const currencySymbol = companySettings?.currencySymbol?.trim() || "-";
-  const taxLabel = companySettings?.taxLabel?.trim() || "-";
-  const website = companySettings?.website?.trim() || "Not configured yet";
-  const phone = companySettings?.phone?.trim() || "Not configured yet";
+  const {
+    companySettings,
+    companyName,
+    currencySymbol,
+    isSetupComplete,
+    logoUrl,
+    phone,
+    prefix,
+    primaryColor,
+    taxLabel,
+    taxPercentage,
+    userFirstName,
+    website,
+  } = useDashboardPage();
 
   return (
     <div className="space-y-7">
@@ -71,7 +71,7 @@ export function DashboardPage() {
             </div>
 
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-              Welcome back, {user?.fullName?.split(" ")[0] ?? "User"}
+              Welcome back, {userFirstName}
             </h1>
 
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
@@ -206,13 +206,13 @@ export function DashboardPage() {
             <div className="rounded-3xl bg-slate-100 p-4">
               <div
                   className="rounded-3xl p-5 text-white"
-                  style={{ backgroundColor: companySettings?.primaryColor ?? "#0f172a" }}
+                  style={{ backgroundColor: primaryColor }}
                 >
                 <div className="flex items-center gap-3">
-                  {companySettings?.logoUrl ? (
+                  {logoUrl ? (
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
                       <img
-                        src={companySettings.logoUrl}
+                        src={logoUrl}
                         alt={companyName}
                         className="h-8 w-8 object-contain"
                       />

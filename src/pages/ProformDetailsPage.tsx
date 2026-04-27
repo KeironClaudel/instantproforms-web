@@ -1,202 +1,30 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { useAuth } from "@/app/providers/useAuth";
-import {
-  createProformShareLink,
-  downloadProformPdf,
-  sendProformByEmail,
-  updateProformStatus,
-} from "@/lib/api/proformActionsApi";
-import { getProformById } from "@/lib/api/proformHistoryApi";
-import { downloadBlobFile } from "@/lib/utils/fileDownload";
-import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
-import { shareFile, shareUrl } from "@/lib/utils/share";
-import type { ProformDetails } from "@/types/proformHistory";
-
-const editableStatuses = ["Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
-
-function formatDate(value: string): string {
-  const date = new Date(value);
-
-  return new Intl.DateTimeFormat("es-CR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
+import { useProformDetailsPage } from "@/hooks/pages/proforms/useProformDetailsPage";
 
 export function ProformDetailsPage() {
-  const { id } = useParams<{ id: string }>();
-  const { companySettings } = useAuth();
-
-  const [proform, setProform] = useState<ProformDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
-  const [isSendingToMyEmail, setIsSendingToMyEmail] = useState(false);
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("Draft");
-  const [feedback, setFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-
-  const currencySymbol = companySettings?.currencySymbol ?? "₡";
-
-  useEffect(() => {
-    async function loadDetails() {
-      if (!id) {
-        setFeedback(createErrorFeedback("Proform identifier was not provided."));
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        setIsLoading(true);
-        const data = await getProformById(id);
-        setProform(data);
-        setSelectedStatus(data.status);
-      } catch {
-        setFeedback(createErrorFeedback("Failed to load proform details."));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadDetails();
-  }, [id]);
-
-  async function handleDownloadPdf() {
-    if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
-      return;
-    }
-
-    try {
-      setIsDownloading(true);
-      const blob = await downloadProformPdf(proform.id);
-      downloadBlobFile(blob, `${proform.number}.pdf`);
-      setFeedback(createSuccessFeedback("PDF downloaded successfully."));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to download the PDF."));
-    } finally {
-      setIsDownloading(false);
-    }
-  }
-
-  async function handleShare() {
-    if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
-      return;
-    }
-
-    try {
-      setIsSharing(true);
-
-      const pdfBlob = await downloadProformPdf(proform.id);
-      const pdfFile = new File([pdfBlob], `${proform.number}.pdf`, {
-        type: pdfBlob.type || "application/pdf",
-      });
-      const sharedAsFile = await shareFile(pdfFile, {
-        title: `Proform ${proform.number}`,
-        text: `Proform ${proform.number}`,
-      });
-
-      if (sharedAsFile) {
-        setFeedback(createSuccessFeedback("PDF share sheet opened successfully."));
-        return;
-      }
-
-      const response = await createProformShareLink(proform.id);
-      const shared = await shareUrl(`Proform ${proform.number}`, response.shareUrl);
-
-      if (!shared) {
-        setFeedback(createErrorFeedback("Native share is not available on this device."));
-        return;
-      }
-
-      setFeedback(createSuccessFeedback("Share sheet opened successfully."));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to share the proform."));
-    } finally {
-      setIsSharing(false);
-    }
-  }
-
-  async function handleSendToMyEmail() {
-    if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
-      return;
-    }
-
-    if (!proform.clientEmail) {
-      setFeedback(createErrorFeedback("This proform does not have a client email address."));
-      return;
-    }
-
-    try {
-      setIsSendingToMyEmail(true);
-      const response = await sendProformByEmail({
-        proformId: proform.id,
-        toEmail: proform.clientEmail,
-        subject: `Proform ${proform.number}`,
-        message: null,
-      });
-
-      setProform((current) =>
-        current
-          ? {
-              ...current,
-              status: response.status,
-            }
-          : current,
-      );
-      setSelectedStatus(response.status);
-      setFeedback(createSuccessFeedback(`Proform ${proform.number} was sent to ${proform.clientEmail}.`));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to send the proform to the client email."));
-    } finally {
-      setIsSendingToMyEmail(false);
-    }
-  }
-
-  async function handleUpdateStatus() {
-    if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
-      return;
-    }
-
-    if (selectedStatus === proform.status) {
-      setFeedback(createErrorFeedback("Select a different status before saving."));
-      return;
-    }
-
-    try {
-      setIsUpdatingStatus(true);
-      const response = await updateProformStatus({
-        proformId: proform.id,
-        status: selectedStatus,
-      });
-
-      setProform((current) =>
-        current
-          ? {
-              ...current,
-              status: response.status,
-            }
-          : current,
-      );
-      setSelectedStatus(response.status);
-      setFeedback(createSuccessFeedback(response.message));
-    } catch {
-      setFeedback(createErrorFeedback("Failed to update the proform status."));
-    } finally {
-      setIsUpdatingStatus(false);
-    }
-  }
+  const {
+    companySettings,
+    currencySymbol,
+    editableStatuses,
+    feedback,
+    handleDownloadPdf,
+    handleSendToClientEmail,
+    handleShare,
+    handleUpdateStatus,
+    isDownloading,
+    isLoading,
+    isSendingToClientEmail,
+    isSharing,
+    isUpdatingStatus,
+    issuedAtLabel,
+    proform,
+    selectedStatus,
+    setSelectedStatus,
+  } = useProformDetailsPage();
 
   if (isLoading) {
     return <PageLoader message="Loading proform details..." />;
@@ -224,7 +52,7 @@ export function ProformDetailsPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <SectionHeader
           title={proform.number}
-          description={`Created on ${formatDate(proform.issuedAtUtc)} for ${proform.clientName}.`}
+          description={`Created on ${issuedAtLabel} for ${proform.clientName}.`}
         />
 
         <div className="flex flex-wrap gap-3">
@@ -255,11 +83,11 @@ export function ProformDetailsPage() {
 
           <button
             type="button"
-            onClick={() => void handleSendToMyEmail()}
-            disabled={isSendingToMyEmail || !proform.clientEmail}
+            onClick={() => void handleSendToClientEmail()}
+            disabled={isSendingToClientEmail || !proform.clientEmail}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSendingToMyEmail ? "Sending..." : "Send to Client Email"}
+            {isSendingToClientEmail ? "Sending..." : "Send to Client Email"}
           </button>
         </div>
       </div>

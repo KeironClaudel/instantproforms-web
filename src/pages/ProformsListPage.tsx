@@ -1,16 +1,9 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { useAuth } from "@/app/providers/useAuth";
-import { getProforms } from "@/lib/api/proformHistoryApi";
-import { createErrorFeedback } from "@/lib/utils/feedback";
 import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
-import type { ProformListItem } from "@/types/proformHistory";
-import type { FeedbackState } from "@/lib/utils/feedback";
-
-const statusOptions = ["All", "Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
+import { useProformsListPage } from "@/hooks/pages/proforms/useProformsListPage";
 
 function formatDate(value: string): string {
   const date = new Date(value);
@@ -29,94 +22,27 @@ function formatPercent(value: number | null | undefined): string {
   return `${value ?? 0}%`;
 }
 
-function toDateInputValue(value: Date): string {
-  const year = value.getFullYear();
-  const month = `${value.getMonth() + 1}`.padStart(2, "0");
-  const day = `${value.getDate()}`.padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
 export function ProformsListPage() {
-  const { companySettings } = useAuth();
-  const [proforms, setProforms] = useState<ProformListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
-  const [clientFilter, setClientFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<(typeof statusOptions)[number]>("All");
-  const [fromDateFilter, setFromDateFilter] = useState("");
-  const [toDateFilter, setToDateFilter] = useState("");
-  const deferredClientFilter = useDeferredValue(clientFilter);
-  const currencySymbol = companySettings?.currencySymbol ?? "₡";
-
-  useEffect(() => {
-    async function loadProforms() {
-      try {
-        setIsLoading(true);
-        const data = await getProforms();
-        setProforms(data);
-      } catch {
-        setFeedback(createErrorFeedback("Failed to load proforms. Please try again later."));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void loadProforms();
-  }, []);
-
-  const filteredProforms = useMemo(() => {
-    const normalizedClientFilter = deferredClientFilter.trim().toLowerCase();
-
-    return [...proforms]
-      .sort(
-        (left, right) =>
-          new Date(right.issuedAtUtc).getTime() - new Date(left.issuedAtUtc).getTime(),
-      )
-      .filter((proform) => {
-        if (
-          normalizedClientFilter.length > 0 &&
-          !proform.clientName.toLowerCase().includes(normalizedClientFilter)
-        ) {
-          return false;
-        }
-
-        if (statusFilter !== "All" && (proform.status ?? "").toLowerCase() !== statusFilter.toLowerCase()) {
-          return false;
-        }
-
-        const issuedAt = new Date(proform.issuedAtUtc);
-
-        if (fromDateFilter) {
-          const fromDate = new Date(`${fromDateFilter}T00:00:00`);
-          if (issuedAt < fromDate) {
-            return false;
-          }
-        }
-
-        if (toDateFilter) {
-          const toDate = new Date(`${toDateFilter}T23:59:59.999`);
-          if (issuedAt > toDate) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-  }, [deferredClientFilter, fromDateFilter, proforms, statusFilter, toDateFilter]);
-
-  const hasActiveFilters =
-    clientFilter.trim().length > 0 ||
-    statusFilter !== "All" ||
-    fromDateFilter.length > 0 ||
-    toDateFilter.length > 0;
-
-  function clearFilters() {
-    setClientFilter("");
-    setStatusFilter("All");
-    setFromDateFilter("");
-    setToDateFilter("");
-  }
+  const {
+    clearFilters,
+    clientFilter,
+    companySettings,
+    currencySymbol,
+    feedback,
+    filteredProforms,
+    fromDateFilter,
+    hasActiveFilters,
+    isLoading,
+    proforms,
+    setClientFilter,
+    setFromDateFilter,
+    setStatusFilter,
+    setToDateFilter,
+    statusFilter,
+    statusOptions,
+    toDateFilter,
+    todayDateValue,
+  } = useProformsListPage();
 
   if (isLoading) {
     return <PageLoader message="Loading proforms..." />;
@@ -202,7 +128,7 @@ export function ProformsListPage() {
                   type="date"
                   value={toDateFilter}
                   min={fromDateFilter || undefined}
-                  max={toDateInputValue(new Date())}
+                  max={todayDateValue}
                   onChange={(event) => setToDateFilter(event.target.value)}
                   className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
                 />

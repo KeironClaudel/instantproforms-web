@@ -1,64 +1,8 @@
-import axios from "axios";
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { forgotPassword } from "@/lib/api/authApi";
-import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
-
-type FeedbackState = {
-  type: "success" | "error";
-  message: string;
-} | null;
-
-function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
-  if (!axios.isAxiosError(error)) {
-    return fallbackMessage;
-  }
-
-  const responseData = error.response?.data;
-
-  if (typeof responseData === "string" && responseData.trim()) {
-    return responseData;
-  }
-
-  if (
-    responseData &&
-    typeof responseData === "object" &&
-    "message" in responseData &&
-    typeof responseData.message === "string" &&
-    responseData.message.trim()
-  ) {
-    return responseData.message;
-  }
-
-  return fallbackMessage;
-}
+import { useForgotPasswordPage } from "@/hooks/pages/auth/useForgotPasswordPage";
 
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [feedback, setFeedback] = useState<FeedbackState>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFeedback(null);
-    setIsSubmitting(true);
-
-    try {
-      const response = await forgotPassword({
-        email: email.trim(),
-      });
-
-      setFeedback(createSuccessFeedback(response.message));
-    } catch (error) {
-      setFeedback(
-        createErrorFeedback(
-          getApiErrorMessage(error, "Failed to start the password reset process."),
-        ),
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  const { email, feedback, handleSubmit, isSubmitting, setEmail } = useForgotPasswordPage();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">

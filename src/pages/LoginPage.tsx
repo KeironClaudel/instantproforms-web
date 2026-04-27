@@ -1,48 +1,20 @@
-import { useState } from "react";
-import { Navigate, useLocation, useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/app/providers/useAuth";
-
-type LocationState = {
-  from?: {
-    pathname?: string;
-  };
-};
+import { Link, Navigate } from "react-router-dom";
+import { useLoginPage } from "@/hooks/pages/auth/useLoginPage";
 
 export function LoginPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const {
+    email,
+    errorMessage,
+    handleSubmit,
+    isSubmitting,
+    setEmail,
+    setPassword,
+    password,
+    shouldRedirect,
+  } = useLoginPage();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  if (!isLoading && isAuthenticated) {
+  if (shouldRedirect) {
     return <Navigate to="/app" replace />;
-  }
-
-  const state = location.state as LocationState | null;
-  const redirectPath = state?.from?.pathname ?? "/app";
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    setErrorMessage(null);
-    setIsSubmitting(true);
-
-    try {
-      await login({
-        email,
-        password,
-      });
-
-      navigate(redirectPath, { replace: true });
-    } catch {
-      setErrorMessage("Invalid credentials or session setup failed.");
-    } finally {
-      setIsSubmitting(false);
-    }
   }
 
   return (
