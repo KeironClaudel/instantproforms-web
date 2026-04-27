@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/providers/useAuth";
 import {
   getCurrentCompanySettings,
@@ -13,7 +14,7 @@ type FeedbackState = {
   message: string;
 } | null;
 
-function createEmptyFormState() {
+function createEmptyFormState(defaultTaxLabel: string) {
   return {
     accentColor: "#dbe2ff",
     address: "",
@@ -26,7 +27,7 @@ function createEmptyFormState() {
     primaryColor: "#1B2D5A",
     proformPrefix: "PRO",
     secondaryColor: "#e6c7f0",
-    taxLabel: "Tax",
+    taxLabel: defaultTaxLabel,
     taxPercentage: "0",
     termsAndConditions: "",
     website: "",
@@ -56,6 +57,7 @@ function buildFormState(settings: CompanySettings): SettingsFormState {
 }
 
 export function useSettingsPage() {
+  const { t } = useTranslation();
   const { companySettings, refreshCompanySettings } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +65,9 @@ export function useSettingsPage() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [form, setForm] = useState<SettingsFormState>(() =>
-    companySettings ? buildFormState(companySettings) : createEmptyFormState(),
+    companySettings
+      ? buildFormState(companySettings)
+      : createEmptyFormState(t("common.defaults.taxLabel")),
   );
 
   useEffect(() => {
@@ -73,27 +77,27 @@ export function useSettingsPage() {
         const settings = await getCurrentCompanySettings(true);
         setForm(buildFormState(settings));
       } catch {
-        setFeedback(createErrorFeedback("Failed to load company settings."));
+        setFeedback(createErrorFeedback(t("pages.settings.feedback.loadFailed")));
       } finally {
         setIsLoading(false);
       }
     }
 
     void loadSettings();
-  }, []);
+  }, [t]);
 
   const previewStyles = useMemo(
     () => ({
       accentColor: form.accentColor || "#dbe2ff",
       currencySymbol: form.currencySymbol || "₡",
-      displayName: form.displayName || "Your Company",
+      displayName: form.displayName || t("common.defaults.companyName"),
       prefix: form.proformPrefix || "PRO",
       primaryColor: form.primaryColor || "#1B2D5A",
       secondaryColor: form.secondaryColor || "#e6c7f0",
-      taxLabel: form.taxLabel || "Tax",
+      taxLabel: form.taxLabel || t("common.defaults.taxLabel"),
       taxPercentage: form.taxPercentage || "0",
     }),
-    [form],
+    [form, t],
   );
 
   function clearFeedback() {
@@ -114,7 +118,7 @@ export function useSettingsPage() {
     const parsedTaxPercentage = Number(form.taxPercentage);
 
     if (!Number.isFinite(parsedTaxPercentage) || parsedTaxPercentage < 0 || parsedTaxPercentage > 100) {
-      setFeedback(createErrorFeedback("Tax percentage must be between 0 and 100."));
+      setFeedback(createErrorFeedback(t("pages.settings.feedback.taxRange")));
       return;
     }
 
@@ -140,9 +144,9 @@ export function useSettingsPage() {
       });
 
       await refreshCompanySettings();
-      setFeedback(createSuccessFeedback("Company settings updated successfully."));
+      setFeedback(createSuccessFeedback(t("pages.settings.feedback.saveSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to update company settings."));
+      setFeedback(createErrorFeedback(t("pages.settings.feedback.saveFailed")));
     } finally {
       setIsSaving(false);
     }
@@ -161,9 +165,9 @@ export function useSettingsPage() {
     try {
       await replaceCompanyLogo(file);
       await refreshCompanySettings();
-      setFeedback(createSuccessFeedback("Company logo updated successfully."));
+      setFeedback(createSuccessFeedback(t("pages.settings.feedback.logoSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to update the company logo."));
+      setFeedback(createErrorFeedback(t("pages.settings.feedback.logoFailed")));
     } finally {
       setIsUploadingLogo(false);
       event.target.value = "";

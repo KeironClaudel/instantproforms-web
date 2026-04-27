@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useRegisterPage } from "@/hooks/pages/auth/useRegisterPage";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const { feedback, form, handleLogoChange, handleSubmit, isSubmitting, logoFile, preview, updateField } =
     useRegisterPage();
 
@@ -14,16 +17,20 @@ export function RegisterPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="mb-8 text-center">
+        <div className="mb-4 flex justify-end">
+          <LanguageSwitcher compact />
+        </div>
+
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
-          Public Registration
+          {t("pages.register.badge")}
         </div>
 
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          Create your company workspace
+          {t("pages.register.title")}
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Register your company, branding, tax rules, and owner account in one step.
+          {t("pages.register.description")}
         </p>
       </div>
 
@@ -31,12 +38,12 @@ export function RegisterPage() {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Company Information
+              {t("common.labels.companyInformation")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Company Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.companyName")}</label>
                 <input
                   className={inputClassName}
                   value={form.companyName}
@@ -46,7 +53,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Company Slug</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.companySlug")}</label>
                 <input
                   className={inputClassName}
                   value={form.companySlug}
@@ -56,7 +63,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Display Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.displayName")}</label>
                 <input
                   className={inputClassName}
                   value={form.displayName}
@@ -66,7 +73,7 @@ export function RegisterPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Legal Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.legalName")}</label>
                 <input
                   className={inputClassName}
                   value={form.legalName}
@@ -75,7 +82,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Company Email</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.companyEmail")}</label>
                 <input
                   type="email"
                   className={inputClassName}
@@ -85,7 +92,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Phone</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.phone")}</label>
                 <input
                   className={inputClassName}
                   value={form.companyPhone}
@@ -94,7 +101,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Website</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.website")}</label>
                 <input
                   className={inputClassName}
                   value={form.companyWebsite}
@@ -103,7 +110,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Address</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.address")}</label>
                 <input
                   className={inputClassName}
                   value={form.companyAddress}
@@ -115,12 +122,12 @@ export function RegisterPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Owner Account
+              {t("pages.register.ownerAccount")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Owner Full Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.ownerFullName")}</label>
                 <input
                   className={inputClassName}
                   value={form.ownerFullName}
@@ -130,7 +137,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Owner Email</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.ownerEmail")}</label>
                 <input
                   type="email"
                   className={inputClassName}
@@ -141,7 +148,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Password</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.login.password")}</label>
                 <input
                   type="password"
                   className={inputClassName}
@@ -152,7 +159,7 @@ export function RegisterPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Confirm Password</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.resetPassword.confirmNewPassword")}</label>
                 <input
                   type="password"
                   className={inputClassName}
@@ -166,12 +173,12 @@ export function RegisterPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Branding and Tax
+              {t("pages.register.brandingAndTax")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium">Primary Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.primaryColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -181,7 +188,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Secondary Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.secondaryColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -191,7 +198,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Accent Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.accentColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -201,7 +208,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Proform Prefix</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.proformPrefix")}</label>
                 <input
                   className={inputClassName}
                   value={form.proformPrefix}
@@ -210,7 +217,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Tax Percentage</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxPercentage")}</label>
                 <input
                   type="number"
                   min="0"
@@ -223,7 +230,7 @@ export function RegisterPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Currency Symbol</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.currencySymbol")}</label>
                 <input
                   className={inputClassName}
                   value={form.currencySymbol}
@@ -232,7 +239,7 @@ export function RegisterPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Tax Label</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxLabel")}</label>
                 <input
                   className={inputClassName}
                   value={form.taxLabel}
@@ -241,7 +248,7 @@ export function RegisterPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Company Logo</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.register.companyLogo")}</label>
                 <input
                   type="file"
                   accept=".png,.jpg,.jpeg,.webp"
@@ -255,7 +262,7 @@ export function RegisterPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Terms and Conditions
+              {t("common.labels.termsAndConditions")}
             </h2>
 
             <textarea
@@ -282,24 +289,24 @@ export function RegisterPage() {
             disabled={isSubmitting}
             className="w-full rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Creating workspace..." : "Create Company Workspace"}
+            {isSubmitting ? t("pages.register.creatingWorkspace") : t("pages.register.createWorkspace")}
           </button>
 
           <div className="text-center text-sm text-slate-600">
-            Already have an account?{" "}
+            {t("pages.register.alreadyHaveAccount")}{" "}
             <Link to="/login" className="font-medium text-slate-900 underline">
-              Sign in
+              {t("pages.register.signIn")}
             </Link>
           </div>
         </form>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-            Live Preview
+            {t("pages.register.livePreview")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-600">
-            This is a quick preview of how your company setup will feel inside the app.
+            {t("pages.register.livePreviewDescription")}
           </p>
 
           <div className="mt-5 rounded-3xl bg-slate-100 p-4">
@@ -319,7 +326,7 @@ export function RegisterPage() {
                   style={{ backgroundColor: preview.secondaryColor }}
                 >
                   <div className="text-xs uppercase tracking-wide text-slate-600">
-                    Tax
+                    {t("common.finance.tax")}
                   </div>
                   <div className="mt-1 font-semibold">
                     {preview.taxLabel} ({preview.taxPercentage}%)
@@ -331,13 +338,15 @@ export function RegisterPage() {
                   style={{ backgroundColor: preview.accentColor }}
                 >
                   <div className="text-xs uppercase tracking-wide text-slate-600">
-                    Currency
+                    {t("common.finance.currency")}
                   </div>
                   <div className="mt-1 font-semibold">{preview.currencySymbol}</div>
                 </div>
 
                 <div className="rounded-2xl border border-dashed border-white/30 px-4 py-3 text-sm text-white/80">
-                  Logo: {logoFile ? logoFile.name : "Not selected yet"}
+                  {logoFile
+                    ? t("pages.register.logoSelected", { name: logoFile.name })
+                    : t("pages.register.logoNotSelected")}
                 </div>
               </div>
             </div>

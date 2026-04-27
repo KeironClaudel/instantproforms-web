@@ -1,10 +1,12 @@
 import { calculateLineTotal } from "@/lib/utils/proformCalculations";
-import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
+import { useTranslation } from "react-i18next";
+import { getProformStatusBadgeClassName, getProformStatusLabel } from "@/lib/utils/proformStatus";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useNewProformPage } from "@/hooks/pages/proforms/useNewProformPage";
 
 export function NewProformPage() {
+  const { t } = useTranslation();
   const {
     addItem,
     clientEmail,
@@ -58,13 +60,13 @@ const textareaClassName =
     <div className="mx-auto max-w-5xl px-1 sm:px-0">
       <div className="mb-8">
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
-          Proform Workflow
+          {t("pages.newProform.badge")}
         </div>
 
         <div className="mt-3">
           <SectionHeader
-            title="New Proform"
-            description="Create a professional proform with live totals, tenant tax settings, and quick delivery actions for mobile and desktop workflows."
+            title={t("pages.newProform.title")}
+            description={t("pages.newProform.description")}
           />
         </div>
       </div>
@@ -72,12 +74,12 @@ const textareaClassName =
       <form className="space-y-6 sm:space-y-7" onSubmit={handleSubmit}>
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-            Client Information
+            {t("pages.newProform.clientInformation")}
           </h2>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium">Client Name</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.newProform.clientName")}</label>
               <input
                 className={inputClassName}
                 value={clientName}
@@ -87,7 +89,7 @@ const textareaClassName =
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Client Email</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.newProform.clientEmail")}</label>
               <input
                 type="email"
                 className={inputClassName}
@@ -97,7 +99,7 @@ const textareaClassName =
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Client Phone</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.newProform.clientPhone")}</label>
               <input
                 className={inputClassName}
                 value={clientPhone}
@@ -106,7 +108,7 @@ const textareaClassName =
             </div>
 
             <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium">Notes / Location</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.newProform.notesLocation")}</label>
               <textarea
                 className={textareaClassName}
                 value={notes}
@@ -118,14 +120,14 @@ const textareaClassName =
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900">Items</h2>
+            <h2 className="text-xl font-semibold tracking-tight text-slate-900">{t("pages.newProform.items")}</h2>
 
             <button
               type="button"
               onClick={addItem}
               className="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              Add Item
+              {t("pages.newProform.addItem")}
             </button>
           </div>
 
@@ -136,20 +138,22 @@ const textareaClassName =
                 className="rounded-3xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5"
               >
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="text-sm font-semibold text-slate-800">Item {index + 1}</div>
+                  <div className="text-sm font-semibold text-slate-800">
+                    {t("pages.newProform.itemNumber", { index: index + 1 })}
+                  </div>
 
                   <button
                     type="button"
                     onClick={() => removeItem(item.id)}
                     className="text-sm font-medium text-red-600 transition hover:text-red-700"
                   >
-                    Remove
+                    {t("pages.newProform.remove")}
                   </button>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-12">
                   <div className="lg:col-span-6">
-                    <label className="mb-1 block text-sm font-medium">Description</label>
+                    <label className="mb-1 block text-sm font-medium">{t("common.labels.description")}</label>
                     <input
                       className={inputClassName}
                       value={item.description}
@@ -158,7 +162,7 @@ const textareaClassName =
                   </div>
 
                   <div className="lg:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">Quantity</label>
+                    <label className="mb-1 block text-sm font-medium">{t("common.labels.quantity")}</label>
                     <input
                       type="number"
                       min="0"
@@ -170,7 +174,7 @@ const textareaClassName =
                   </div>
 
                   <div className="lg:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">Unit Price</label>
+                    <label className="mb-1 block text-sm font-medium">{t("common.finance.unitPrice")}</label>
                     <input
                       inputMode="decimal"
                       type="text"
@@ -181,7 +185,7 @@ const textareaClassName =
                   </div>
 
                   <div className="lg:col-span-2">
-                    <label className="mb-1 block text-sm font-medium">Line Total</label>
+                    <label className="mb-1 block text-sm font-medium">{t("pages.newProform.lineTotal")}</label>
                     <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700">
                       {companySettings?.currencySymbol ?? "₡"}
                       {calculateLineTotal(item.quantity, item.unitPrice).toFixed(2)}
@@ -195,12 +199,12 @@ const textareaClassName =
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-            Summary
+            {t("pages.newProform.summary")}
           </h2>
 
           <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm">
             <div className="flex items-center justify-between">
-              <span>Subtotal</span>
+              <span>{t("common.finance.subtotal")}</span>
               <span>
                 {companySettings?.currencySymbol ?? "₡"}
                 {subtotal.toFixed(2)}
@@ -209,7 +213,7 @@ const textareaClassName =
 
             <div className="flex items-center justify-between">
               <span>
-                {companySettings?.taxLabel ?? "Tax"} ({taxPercentage}%)
+                {companySettings?.taxLabel ?? t("common.defaults.taxLabel")} ({taxPercentage}%)
               </span>
               <span>
                 {companySettings?.currencySymbol ?? "₡"}
@@ -218,7 +222,7 @@ const textareaClassName =
             </div>
 
             <div className="flex items-center justify-between border-t border-slate-300 pt-4 text-lg font-semibold text-slate-900">
-              <span>Total</span>
+              <span>{t("common.finance.total")}</span>
               <span>
                 {companySettings?.currencySymbol ?? "₡"}
                 {total.toFixed(2)}
@@ -244,20 +248,22 @@ const textareaClassName =
           disabled={isSubmitting}
           className="w-full rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Creating proform..." : "Create Proform"}
+          {isSubmitting ? t("pages.newProform.creatingProform") : t("pages.newProform.createProform")}
         </button>
 
         {queuedNotice ? (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-sm text-amber-800 shadow-sm">
-            Proform for <span className="font-semibold">{queuedNotice.clientName}</span> is queued for
-            sync. Queue ID: <span className="font-mono">{queuedNotice.queueId}</span>
+            {t("pages.newProform.queuedNotice", {
+              clientName: queuedNotice.clientName,
+              queueId: queuedNotice.queueId,
+            })}
           </div>
         ) : null}
 
         {!createdProform ? (
           <EmptyState
-            title="No proform created yet"
-            description="Complete the form above to generate a proform and unlock PDF download, share link, and email delivery actions."
+            title={t("pages.newProform.noProformYetTitle")}
+            description={t("pages.newProform.noProformYetDescription")}
           />
         ) : null}
 
@@ -267,7 +273,7 @@ const textareaClassName =
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
                   <div className="text-sm font-medium uppercase tracking-wide text-emerald-700">
-                    Proform Created
+                    {t("pages.newProform.proformCreated")}
                   </div>
 
                   <h2 className="mt-1 text-2xl font-semibold text-slate-900">
@@ -278,21 +284,25 @@ const textareaClassName =
                     <span
                       className={`rounded-full px-3 py-1 font-medium ${getProformStatusBadgeClassName(createdProform.status)}`}
                     >
-                      Status: {createdProform.status}
+                      {t("pages.newProform.statusPrefix", {
+                        status: getProformStatusLabel(createdProform.status, t),
+                      })}
                     </span>
 
                     <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
-                      Prefix: {companySettings?.proformPrefix ?? "-"}
+                      {t("pages.newProform.prefixLabel", {
+                        prefix: companySettings?.proformPrefix ?? "-",
+                      })}
                     </span>
 
                     <span className="rounded-full bg-white px-3 py-1 font-medium text-slate-700">
-                      Tax: {createdProform.taxPercentage}%
+                      {t("pages.newProform.taxLabel", { tax: createdProform.taxPercentage })}
                     </span>
                   </div>
                 </div>
 
                 <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-sm">
-                  <div className="text-xs uppercase tracking-wide text-slate-500">Total</div>
+                  <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.finance.total")}</div>
                   <div className="mt-1 text-2xl font-semibold text-slate-900">
                     {companySettings?.currencySymbol ?? "₡"}
                     {createdProform.total.toFixed(2)}
@@ -302,7 +312,7 @@ const textareaClassName =
 
               <div className="mt-4 grid gap-3 text-sm md:grid-cols-3">
                 <div className="rounded-xl bg-white px-3 py-3">
-                  <div className="text-slate-500">Subtotal</div>
+                  <div className="text-slate-500">{t("common.finance.subtotal")}</div>
                   <div className="mt-1 font-semibold text-slate-900">
                     {companySettings?.currencySymbol ?? "₡"}
                     {createdProform.subtotal.toFixed(2)}
@@ -311,7 +321,7 @@ const textareaClassName =
 
                 <div className="rounded-xl bg-white px-3 py-3">
                   <div className="text-slate-500">
-                    {companySettings?.taxLabel ?? "Tax"} ({createdProform.taxPercentage}%)
+                    {companySettings?.taxLabel ?? t("common.defaults.taxLabel")} ({createdProform.taxPercentage}%)
                   </div>
                   <div className="mt-1 font-semibold text-slate-900">
                     {companySettings?.currencySymbol ?? "₡"}
@@ -320,7 +330,7 @@ const textareaClassName =
                 </div>
 
                 <div className="rounded-xl bg-white px-3 py-3">
-                  <div className="text-slate-500">Final Total</div>
+                  <div className="text-slate-500">{t("common.finance.finalTotal")}</div>
                   <div className="mt-1 font-semibold text-slate-900">
                     {companySettings?.currencySymbol ?? "₡"}
                     {createdProform.total.toFixed(2)}
@@ -331,10 +341,10 @@ const textareaClassName =
 
             <div className="mb-4">
               <h3 className="text-xl font-semibold tracking-tight text-slate-900">
-                Proform Actions
+                {t("pages.newProform.proformActions")}
               </h3>
               <p className="mt-1 text-sm text-slate-600">
-                Download, share, or send the generated proform.
+                {t("pages.newProform.proformActionsDescription")}
               </p>
             </div>
 
@@ -345,7 +355,7 @@ const textareaClassName =
                 disabled={isDownloading}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                {isDownloading ? "Downloading..." : "Download PDF"}
+                {isDownloading ? t("pages.newProform.downloading") : t("pages.newProform.downloadPdf")}
               </button>
 
               <button
@@ -354,7 +364,7 @@ const textareaClassName =
                 disabled={isCreatingShareLink}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                {isCreatingShareLink ? "Creating link..." : "Create Share Link"}
+                {isCreatingShareLink ? t("pages.newProform.creatingLink") : t("pages.newProform.createShareLink")}
               </button>
 
               <button
@@ -363,7 +373,7 @@ const textareaClassName =
                 disabled={isSharing}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                {isSharing ? "Sharing..." : "Share"}
+                {isSharing ? t("pages.newProform.sharing") : t("pages.newProform.share")}
               </button>
 
               <button
@@ -371,14 +381,14 @@ const textareaClassName =
                 onClick={resetCreatedProform}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
-                Create Another Proform
+                {t("pages.newProform.createAnother")}
               </button>
             </div>
 
             {shareUrlValue ? (
               <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <div className="text-sm font-medium">Share URL</div>
+                  <div className="text-sm font-medium">{t("pages.newProform.shareUrl")}</div>
 
                   <button
                     type="button"
@@ -386,7 +396,7 @@ const textareaClassName =
                     disabled={isCopyingShareLink}
                     className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                   >
-                    {isCopyingShareLink ? "Copying..." : "Copy Link"}
+                    {isCopyingShareLink ? t("pages.newProform.copying") : t("common.actions.copyLink")}
                   </button>
                 </div>
 
@@ -395,11 +405,11 @@ const textareaClassName =
             ) : null}
 
             <div className="mt-6 border-t border-slate-200 pt-5">
-              <h3 className="mb-4 text-lg font-semibold text-slate-900">Send by Email</h3>
+              <h3 className="mb-4 text-lg font-semibold text-slate-900">{t("pages.newProform.sendByEmail")}</h3>
 
               <div className="grid gap-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Recipient Email</label>
+                  <label className="mb-1 block text-sm font-medium">{t("common.labels.recipientEmail")}</label>
                   <input
                     type="email"
                     className={inputClassName}
@@ -409,7 +419,7 @@ const textareaClassName =
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Subject</label>
+                  <label className="mb-1 block text-sm font-medium">{t("common.labels.subject")}</label>
                   <input
                     className={inputClassName}
                     value={emailSubject}
@@ -418,7 +428,7 @@ const textareaClassName =
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Message</label>
+                  <label className="mb-1 block text-sm font-medium">{t("pages.newProform.message")}</label>
                   <textarea
                     className={textareaClassName}
                     value={emailMessage}
@@ -432,7 +442,7 @@ const textareaClassName =
                   disabled={isSendingEmail}
                   className="rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60"
                 >
-                  {isSendingEmail ? "Sending..." : "Send by Email"}
+                  {isSendingEmail ? t("pages.newProform.sending") : t("pages.newProform.sendByEmail")}
                 </button>
               </div>
             </div>

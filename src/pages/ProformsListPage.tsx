@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
+import { getProformStatusBadgeClassName, getProformStatusLabel } from "@/lib/utils/proformStatus";
 import { useProformsListPage } from "@/hooks/pages/proforms/useProformsListPage";
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
 
-  return new Intl.DateTimeFormat("es-CR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
@@ -23,6 +24,7 @@ function formatPercent(value: number | null | undefined): string {
 }
 
 export function ProformsListPage() {
+  const { i18n, t } = useTranslation();
   const {
     clearFilters,
     clientFilter,
@@ -45,14 +47,14 @@ export function ProformsListPage() {
   } = useProformsListPage();
 
   if (isLoading) {
-    return <PageLoader message="Loading proforms..." />;
+    return <PageLoader message={t("pages.proformsList.loading")} />;
   }
 
   return (
     <div className="mx-auto max-w-6xl px-1 sm:px-0">
       <SectionHeader
-        title="Proforms"
-        description="Review previously created proforms, inspect details, and reopen delivery actions."
+        title={t("pages.proformsList.title")}
+        description={t("pages.proformsList.description")}
       />
 
       {feedback ? (
@@ -65,9 +67,9 @@ export function ProformsListPage() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-slate-900">Filter Proforms</h2>
+              <h2 className="text-lg font-semibold tracking-tight text-slate-900">{t("pages.proformsList.filterTitle")}</h2>
               <p className="text-sm text-slate-500">
-                Narrow the list by client, status, or issue date.
+                {t("pages.proformsList.filterDescription")}
               </p>
             </div>
 
@@ -77,24 +79,24 @@ export function ProformsListPage() {
               disabled={!hasActiveFilters}
               className="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Clear Filters
+              {t("common.actions.clearFilters")}
             </button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div className="xl:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">Client Name</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">{t("pages.proformsList.clientName")}</label>
               <input
                 type="text"
                 value={clientFilter}
                 onChange={(event) => setClientFilter(event.target.value)}
-                placeholder="Search by client name..."
+                placeholder={t("pages.proformsList.searchByClient")}
                 className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+              <label className="mb-1 block text-sm font-medium text-slate-700">{t("common.labels.status")}</label>
               <select
                 value={statusFilter}
                 onChange={(event) =>
@@ -104,7 +106,7 @@ export function ProformsListPage() {
               >
                 {statusOptions.map((status) => (
                   <option key={status} value={status}>
-                    {status}
+                    {getProformStatusLabel(status, t)}
                   </option>
                 ))}
               </select>
@@ -112,7 +114,7 @@ export function ProformsListPage() {
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2 xl:col-span-1">
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">From</label>
+                <label className="mb-1 block text-sm font-medium text-slate-700">{t("pages.proformsList.from")}</label>
                 <input
                   type="date"
                   value={fromDateFilter}
@@ -123,7 +125,7 @@ export function ProformsListPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">To</label>
+                <label className="mb-1 block text-sm font-medium text-slate-700">{t("pages.proformsList.to")}</label>
                 <input
                   type="date"
                   value={toDateFilter}
@@ -140,28 +142,28 @@ export function ProformsListPage() {
 
       {proforms.length === 0 ? (
         <EmptyState
-          title="No proforms yet"
-          description="You have not created any proforms yet. Start your first one to see it listed here."
+          title={t("pages.proformsList.noProformsTitle")}
+          description={t("pages.proformsList.noProformsDescription")}
           action={
             <Link
               to="/app/proforms/new"
               className="inline-flex rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
             >
-              Create First Proform
+              {t("common.actions.createFirst")}
             </Link>
           }
         />
       ) : filteredProforms.length === 0 ? (
         <EmptyState
-          title="No matches found"
-          description="Try adjusting the client, status, or date filters to broaden the results."
+          title={t("pages.proformsList.noMatchesTitle")}
+          description={t("pages.proformsList.noMatchesDescription")}
           action={
             <button
               type="button"
               onClick={clearFilters}
               className="inline-flex rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
             >
-              Reset Filters
+              {t("common.actions.resetFilters")}
             </button>
           }
         />
@@ -183,24 +185,24 @@ export function ProformsListPage() {
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-medium ${getProformStatusBadgeClassName(proform.status)}`}
                     >
-                      {proform.status}
+                      {getProformStatusLabel(proform.status, t)}
                     </span>
                   </div>
 
                   <div className="mt-2 text-sm text-slate-600">
-                    Client: <span className="font-medium text-slate-800">{proform.clientName}</span>
+                    {t("pages.proformsList.clientPrefix")} <span className="font-medium text-slate-800">{proform.clientName}</span>
                   </div>
 
                   <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-                    <span>{proform.clientEmail || "No email"}</span>
-                    <span>{proform.clientPhone || "No phone"}</span>
-                    <span>{formatDate(proform.issuedAtUtc)}</span>
+                    <span>{proform.clientEmail || t("common.defaults.noEmail")}</span>
+                    <span>{proform.clientPhone || t("common.defaults.noPhone")}</span>
+                    <span>{formatDate(proform.issuedAtUtc, i18n.resolvedLanguage?.startsWith("es") ? "es-CR" : "en-US")}</span>
                   </div>
                 </div>
 
                 <div className="grid min-w-[220px] gap-2 rounded-2xl bg-slate-50 p-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Subtotal</span>
+                    <span className="text-slate-500">{t("common.finance.subtotal")}</span>
                     <span className="font-medium text-slate-800">
                       {currencySymbol}
                       {formatMoney(proform.subtotal)}
@@ -209,7 +211,7 @@ export function ProformsListPage() {
 
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">
-                      {companySettings?.taxLabel ?? "Tax"} ({formatPercent(proform.taxPercentage)})
+                      {companySettings?.taxLabel ?? t("common.defaults.taxLabel")} ({formatPercent(proform.taxPercentage)})
                     </span>
                     <span className="font-medium text-slate-800">
                       {currencySymbol}
@@ -218,7 +220,7 @@ export function ProformsListPage() {
                   </div>
 
                   <div className="flex items-center justify-between border-t border-slate-300 pt-2 text-base font-semibold text-slate-900">
-                    <span>Total</span>
+                    <span>{t("common.finance.total")}</span>
                     <span>
                       {currencySymbol}
                       {formatMoney(proform.total)}

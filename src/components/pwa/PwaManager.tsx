@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { useAuth } from "@/app/providers/useAuth";
 import {
@@ -17,6 +18,7 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 export function PwaManager() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [queuedCount, setQueuedCount] = useState(0);
@@ -169,9 +171,11 @@ export function PwaManager() {
         <div className="flex flex-col gap-3 text-sm text-slate-700">
           {needRefresh ? (
             <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3">
-              <div className="font-semibold text-sky-900">Update available</div>
+              <div className="font-semibold text-sky-900">
+                {t("components.pwaManager.update.title")}
+              </div>
               <p className="mt-1 text-sky-800">
-                A newer version of InstantProforms is ready. Refresh to apply it safely.
+                {t("components.pwaManager.update.body")}
               </p>
               <div className="mt-3 flex gap-2">
                 <button
@@ -179,14 +183,14 @@ export function PwaManager() {
                   onClick={() => void updateServiceWorker(true)}
                   className="rounded-2xl bg-sky-600 px-3 py-2 font-medium text-white transition hover:bg-sky-700"
                 >
-                  Refresh App
+                  {t("components.pwaManager.update.button")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setNeedRefresh(false)}
                   className="rounded-2xl border border-sky-200 bg-white px-3 py-2 font-medium text-sky-800 transition hover:bg-sky-100"
                 >
-                  Later
+                  {t("common.actions.later")}
                 </button>
               </div>
             </div>
@@ -194,25 +198,29 @@ export function PwaManager() {
 
           {offlineReady ? (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <div className="font-semibold text-emerald-900">Offline shell ready</div>
+              <div className="font-semibold text-emerald-900">
+                {t("components.pwaManager.offline.title")}
+              </div>
               <p className="mt-1 text-emerald-800">
-                The UI can open offline now. Live API data will resume when your connection returns.
+                {t("components.pwaManager.offline.body")}
               </p>
               <button
                 type="button"
                 onClick={() => setOfflineReady(false)}
                 className="mt-3 rounded-2xl border border-emerald-200 bg-white px-3 py-2 font-medium text-emerald-800 transition hover:bg-emerald-100"
               >
-                Dismiss
+                {t("common.actions.dismiss")}
               </button>
             </div>
           ) : null}
 
           {deferredInstallPrompt ? (
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <div className="font-semibold text-slate-900">Install InstantProforms</div>
+              <div className="font-semibold text-slate-900">
+                {t("components.pwaManager.install.title")}
+              </div>
               <p className="mt-1 text-slate-600">
-                Add the app to your device for faster launch and standalone mode.
+                {t("components.pwaManager.install.body")}
               </p>
               <div className="mt-3 flex gap-2">
                 <button
@@ -221,14 +229,16 @@ export function PwaManager() {
                   disabled={isInstalling}
                   className="rounded-2xl bg-slate-900 px-3 py-2 font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
                 >
-                  {isInstalling ? "Preparing..." : "Install App"}
+                  {isInstalling
+                    ? t("components.pwaManager.install.preparing")
+                    : t("components.pwaManager.install.button")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setDeferredInstallPrompt(null)}
                   className="rounded-2xl border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700 transition hover:bg-slate-100"
                 >
-                  Not now
+                  {t("common.actions.notNow")}
                 </button>
               </div>
             </div>
@@ -237,10 +247,12 @@ export function PwaManager() {
           {queuedCount > 0 ? (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
               <div className="font-semibold text-amber-900">
-                {queuedCount} queued {queuedCount === 1 ? "request" : "requests"}
+                {queuedCount === 1
+                  ? t("components.pwaManager.queue.one", { count: queuedCount })
+                  : t("components.pwaManager.queue.other", { count: queuedCount })}
               </div>
               <p className="mt-1 text-amber-800">
-                Pending proform creations will retry automatically with exponential backoff.
+                {t("components.pwaManager.queue.body")}
               </p>
               <button
                 type="button"
@@ -248,7 +260,9 @@ export function PwaManager() {
                 disabled={isProcessingQueue}
                 className="mt-3 rounded-2xl border border-amber-200 bg-white px-3 py-2 font-medium text-amber-900 transition hover:bg-amber-100 disabled:opacity-60"
               >
-                {isProcessingQueue ? "Retrying..." : "Retry now"}
+                {isProcessingQueue
+                  ? t("components.pwaManager.queue.retrying")
+                  : t("common.actions.retryNow")}
               </button>
             </div>
           ) : null}

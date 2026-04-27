@@ -1,16 +1,9 @@
 import axios from "axios";
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { registerCompany } from "@/lib/api/authApi";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
-
-const defaultTerms = `The warranty does not cover damage, failures, or modifications caused by improper handling, intervention, or alterations performed by third parties unrelated to the company.
-
-Any issue related to the installation must be reported directly to the company before any repair or intervention.
-
-If the client authorizes repairs by third parties without prior assessment, the granted warranty will be automatically voided.
-
-The company is not responsible for damage caused by overloads, defective equipment, unauthorized connections, or improper use.`;
 
 type FeedbackState = {
   type: "success" | "error";
@@ -40,32 +33,34 @@ type RegisterFormState = {
   confirmPassword: string;
 };
 
-const initialFormState: RegisterFormState = {
-  companyName: "",
-  companySlug: "",
-  companyEmail: "",
-  companyPhone: "",
-  companyAddress: "",
-  companyWebsite: "",
-  displayName: "",
-  legalName: "",
-  termsAndConditions: defaultTerms,
-  primaryColor: "#1B2D5A",
-  secondaryColor: "#e6c7f0",
-  accentColor: "#dbe2ff",
-  proformPrefix: "PRO",
-  taxPercentage: "13",
-  currencySymbol: "₡",
-  taxLabel: "Tax",
-  ownerFullName: "",
-  ownerEmail: "",
-  password: "",
-  confirmPassword: "",
-};
+function createInitialFormState(defaultTerms: string, defaultTaxLabel: string): RegisterFormState {
+  return {
+    accentColor: "#dbe2ff",
+    companyAddress: "",
+    companyEmail: "",
+    companyName: "",
+    companyPhone: "",
+    companySlug: "",
+    companyWebsite: "",
+    confirmPassword: "",
+    currencySymbol: "₡",
+    displayName: "",
+    legalName: "",
+    ownerEmail: "",
+    ownerFullName: "",
+    password: "",
+    primaryColor: "#1B2D5A",
+    proformPrefix: "PRO",
+    secondaryColor: "#e6c7f0",
+    taxLabel: defaultTaxLabel,
+    taxPercentage: "13",
+    termsAndConditions: defaultTerms,
+  };
+}
 
-function getRegisterErrorMessage(error: unknown): string {
+function getRegisterErrorMessage(error: unknown, fallbackMessage: string): string {
   if (!axios.isAxiosError(error)) {
-    return "Failed to register the company.";
+    return fallbackMessage;
   }
 
   const responseData = error.response?.data;
@@ -84,14 +79,20 @@ function getRegisterErrorMessage(error: unknown): string {
     return responseData.message;
   }
 
-  return "Failed to register the company.";
+  return fallbackMessage;
 }
 
 export function useRegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const submitLockRef = useRef(false);
 
-  const [form, setForm] = useState(initialFormState);
+  const [form, setForm] = useState<RegisterFormState>(() =>
+    createInitialFormState(
+      t("pages.register.defaults.terms"),
+      t("common.defaults.taxLabel"),
+    ),
+  );
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
@@ -100,14 +101,14 @@ export function useRegisterPage() {
     () => ({
       accentColor: form.accentColor,
       currencySymbol: form.currencySymbol.trim() || "₡",
-      displayName: form.displayName.trim() || "Your Company",
+      displayName: form.displayName.trim() || t("common.defaults.companyName"),
       prefix: form.proformPrefix.trim() || "PRO",
       primaryColor: form.primaryColor,
       secondaryColor: form.secondaryColor,
-      taxLabel: form.taxLabel.trim() || "Tax",
+      taxLabel: form.taxLabel.trim() || t("common.defaults.taxLabel"),
       taxPercentage: form.taxPercentage.trim() || "0",
     }),
-    [form],
+    [form, t],
   );
 
   function updateField<K extends keyof RegisterFormState>(field: K, value: RegisterFormState[K]) {
@@ -133,42 +134,42 @@ export function useRegisterPage() {
     const parsedTaxPercentage = Number(form.taxPercentage);
 
     if (!form.companyName.trim()) {
-      setFeedback(createErrorFeedback("Company name is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.companyNameRequired")));
       return;
     }
 
     if (!form.companySlug.trim()) {
-      setFeedback(createErrorFeedback("Company slug is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.companySlugRequired")));
       return;
     }
 
     if (!form.displayName.trim()) {
-      setFeedback(createErrorFeedback("Display name is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.displayNameRequired")));
       return;
     }
 
     if (!form.ownerFullName.trim()) {
-      setFeedback(createErrorFeedback("Owner full name is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.ownerFullNameRequired")));
       return;
     }
 
     if (!form.ownerEmail.trim()) {
-      setFeedback(createErrorFeedback("Owner email is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.ownerEmailRequired")));
       return;
     }
 
     if (!form.password.trim()) {
-      setFeedback(createErrorFeedback("Password is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.passwordRequired")));
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setFeedback(createErrorFeedback("Passwords do not match."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.passwordMismatch")));
       return;
     }
 
     if (!logoFile) {
-      setFeedback(createErrorFeedback("Company logo is required."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.logoRequired")));
       return;
     }
 
@@ -177,7 +178,7 @@ export function useRegisterPage() {
       parsedTaxPercentage < 0 ||
       parsedTaxPercentage > 100
     ) {
-      setFeedback(createErrorFeedback("Tax percentage must be between 0 and 100."));
+      setFeedback(createErrorFeedback(t("pages.register.feedback.taxRange")));
       return;
     }
 
@@ -208,13 +209,17 @@ export function useRegisterPage() {
         password: form.password,
       });
 
-      setFeedback(createSuccessFeedback("Company registered successfully. Redirecting to login..."));
+      setFeedback(createSuccessFeedback(t("pages.register.feedback.success")));
 
       window.setTimeout(() => {
         navigate("/login", { replace: true });
       }, 900);
     } catch (error) {
-      setFeedback(createErrorFeedback(getRegisterErrorMessage(error)));
+      setFeedback(
+        createErrorFeedback(
+          getRegisterErrorMessage(error, t("pages.register.feedback.failed")),
+        ),
+      );
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);

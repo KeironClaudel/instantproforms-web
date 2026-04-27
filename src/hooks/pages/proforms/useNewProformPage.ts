@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/providers/useAuth";
 import { createProform } from "@/lib/api/proformApi";
 import { createProformShareLink, downloadProformPdf, sendProformByEmail } from "@/lib/api/proformActionsApi";
@@ -34,6 +35,7 @@ function createEmptyItem(): ProformItemDraft {
 }
 
 export function useNewProformPage() {
+  const { t } = useTranslation();
   const { companySettings, user } = useAuth();
 
   const [clientName, setClientName] = useState("");
@@ -104,7 +106,7 @@ export function useNewProformPage() {
     setQueuedNotice(null);
 
     if (!shareUrlValue) {
-      setFeedback(createErrorFeedback("There is no share link to copy yet."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.noShareLink")));
       return;
     }
 
@@ -114,13 +116,13 @@ export function useNewProformPage() {
       const copied = await copyTextToClipboard(shareUrlValue);
 
       if (!copied) {
-        setFeedback(createErrorFeedback("Failed to copy the share link."));
+        setFeedback(createErrorFeedback(t("pages.newProform.feedback.copyLinkFailed")));
         return;
       }
 
-      setFeedback(createSuccessFeedback("Share link copied to clipboard."));
+      setFeedback(createSuccessFeedback(t("pages.newProform.feedback.copyLinkSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to copy the share link."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.copyLinkFailed")));
     } finally {
       setIsCopyingShareLink(false);
     }
@@ -130,7 +132,7 @@ export function useNewProformPage() {
     clearFeedback();
 
     if (!createdProform?.id) {
-      setFeedback(createErrorFeedback("The created proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.missingProformId")));
       return;
     }
 
@@ -139,9 +141,9 @@ export function useNewProformPage() {
     try {
       const blob = await downloadProformPdf(createdProform.id);
       downloadBlobFile(blob, `${createdProform.number}.pdf`);
-      setFeedback(createSuccessFeedback("PDF downloaded successfully."));
+      setFeedback(createSuccessFeedback(t("pages.newProform.feedback.downloadSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to download the PDF."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.downloadFailed")));
     } finally {
       setIsDownloading(false);
     }
@@ -151,7 +153,7 @@ export function useNewProformPage() {
     clearFeedback();
 
     if (!createdProform?.id) {
-      setFeedback(createErrorFeedback("The created proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.missingProformId")));
       return;
     }
 
@@ -160,9 +162,9 @@ export function useNewProformPage() {
     try {
       const response = await createProformShareLink(createdProform.id);
       setShareUrlValue(response.shareUrl);
-      setFeedback(createSuccessFeedback("Share link created successfully."));
+      setFeedback(createSuccessFeedback(t("pages.newProform.feedback.createLinkSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to create the share link."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.createLinkFailed")));
     } finally {
       setIsCreatingShareLink(false);
     }
@@ -172,7 +174,7 @@ export function useNewProformPage() {
     clearFeedback();
 
     if (!createdProform?.id) {
-      setFeedback(createErrorFeedback("The created proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.missingProformId")));
       return;
     }
 
@@ -189,7 +191,7 @@ export function useNewProformPage() {
       });
 
       if (sharedAsFile) {
-        setFeedback(createSuccessFeedback("PDF share sheet opened successfully."));
+        setFeedback(createSuccessFeedback(t("pages.newProform.feedback.sharePdfSuccess")));
         return;
       }
 
@@ -204,13 +206,13 @@ export function useNewProformPage() {
       const shared = await shareUrl(`Proform ${createdProform.number}`, finalUrl);
 
       if (!shared) {
-        setFeedback(createErrorFeedback("Native share is not available on this device."));
+        setFeedback(createErrorFeedback(t("pages.newProform.feedback.nativeShareUnavailable")));
         return;
       }
 
-      setFeedback(createSuccessFeedback("Share sheet opened successfully."));
+      setFeedback(createSuccessFeedback(t("pages.newProform.feedback.shareSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to share the proform."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.shareFailed")));
     } finally {
       setIsSharing(false);
     }
@@ -220,12 +222,12 @@ export function useNewProformPage() {
     clearFeedback();
 
     if (!createdProform?.id) {
-      setFeedback(createErrorFeedback("The created proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.missingProformId")));
       return;
     }
 
     if (!emailTo.trim()) {
-      setFeedback(createErrorFeedback("Recipient email is required."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.recipientRequired")));
       return;
     }
 
@@ -247,9 +249,13 @@ export function useNewProformPage() {
             }
           : current,
       );
-      setFeedback(createSuccessFeedback(`Proform ${createdProform.number} was sent successfully.`));
+      setFeedback(
+        createSuccessFeedback(
+          t("pages.newProform.feedback.sendSuccess", { number: createdProform.number }),
+        ),
+      );
     } catch {
-      setFeedback(createErrorFeedback("Failed to send the proform by email."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.sendFailed")));
     } finally {
       setIsSendingEmail(false);
     }
@@ -274,19 +280,19 @@ export function useNewProformPage() {
       );
 
     if (clientName.trim().length === 0) {
-      setFeedback(createErrorFeedback("Client name is required."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.clientNameRequired")));
       return;
     }
 
     if (normalizedItems.length === 0) {
-      setFeedback(createErrorFeedback("At least one item is required."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.atLeastOneItem")));
       return;
     }
 
     const hasInvalidNumbers = normalizedItems.some((item) => item.quantity <= 0 || item.unitPrice < 0);
 
     if (hasInvalidNumbers) {
-      setFeedback(createErrorFeedback("Quantity must be greater than 0 and unit price cannot be negative."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.invalidItemNumbers")));
       return;
     }
 
@@ -318,18 +324,18 @@ export function useNewProformPage() {
           clientName: clientName.trim(),
           queueId: result.queueId,
         });
-        setFeedback(
-          createSuccessFeedback(
-            "No connection was available. The proform was queued and will retry automatically when the network returns.",
-          ),
-        );
+        setFeedback(createSuccessFeedback(t("pages.newProform.feedback.queued")));
         resetDraftForm();
         return;
       }
 
       const response = result.response;
 
-      setFeedback(createSuccessFeedback(`Proform ${response.number} created successfully.`));
+      setFeedback(
+        createSuccessFeedback(
+          t("pages.newProform.feedback.createdSuccess", { number: response.number }),
+        ),
+      );
       setQueuedNotice(null);
       setCreatedProform({
         id: response.proformId,
@@ -346,7 +352,7 @@ export function useNewProformPage() {
       setEmailMessage("");
       resetDraftForm();
     } catch {
-      setFeedback(createErrorFeedback("Failed to create the proform."));
+      setFeedback(createErrorFeedback(t("pages.newProform.feedback.createFailed")));
     } finally {
       setIsSubmitting(false);
     }

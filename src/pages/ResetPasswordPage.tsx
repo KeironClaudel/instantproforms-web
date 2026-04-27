@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useResetPasswordPage } from "@/hooks/pages/auth/useResetPasswordPage";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function ResetPasswordPage() {
+  const { t } = useTranslation();
   const {
     confirmPassword,
     feedback,
@@ -17,9 +20,15 @@ export function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Reset password</h1>
+          <div className="mb-4 flex justify-end">
+            <LanguageSwitcher compact />
+          </div>
+
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {t("pages.resetPassword.title")}
+          </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Choose a new password for your account.
+            {t("pages.resetPassword.description")}
           </p>
         </div>
 
@@ -29,7 +38,7 @@ export function ResetPasswordPage() {
               className="mb-1 block text-sm font-medium text-slate-700"
               htmlFor="new-password"
             >
-              New password
+              {t("pages.resetPassword.newPassword")}
             </label>
             <input
               id="new-password"
@@ -41,7 +50,7 @@ export function ResetPasswordPage() {
               required
             />
             <p className="mt-1 text-xs text-slate-500">
-              At least 8 characters, including uppercase, lowercase, and a digit.
+              {t("pages.resetPassword.passwordHint")}
             </p>
           </div>
 
@@ -50,7 +59,7 @@ export function ResetPasswordPage() {
               className="mb-1 block text-sm font-medium text-slate-700"
               htmlFor="confirm-password"
             >
-              Confirm new password
+              {t("pages.resetPassword.confirmNewPassword")}
             </label>
             <input
               id="confirm-password"
@@ -65,7 +74,7 @@ export function ResetPasswordPage() {
 
           {!token ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              This page needs a valid reset token from the email link.
+              {t("pages.resetPassword.invalidTokenBanner")}
             </div>
           ) : null}
 
@@ -86,12 +95,12 @@ export function ResetPasswordPage() {
             disabled={isSubmitting || !token}
             className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Updating..." : "Update password"}
+            {isSubmitting ? t("pages.resetPassword.updating") : t("pages.resetPassword.updatePassword")}
           </button>
 
           <div className="text-center text-sm text-slate-600">
             <Link to="/login" className="font-medium text-slate-900 underline">
-              Back to sign in
+              {t("pages.resetPassword.backToSignIn")}
             </Link>
           </div>
         </form>

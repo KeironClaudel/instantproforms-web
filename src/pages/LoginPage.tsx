@@ -1,7 +1,10 @@
 import { Link, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useLoginPage } from "@/hooks/pages/auth/useLoginPage";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const {
     email,
     errorMessage,
@@ -21,16 +24,20 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Sign in</h1>
+          <div className="mb-4 flex justify-end">
+            <LanguageSwitcher compact />
+          </div>
+
+          <h1 className="text-2xl font-semibold text-slate-900">{t("pages.login.title")}</h1>
           <p className="mt-2 text-sm text-slate-600">
-            Access your InstantProforms workspace.
+            {t("pages.login.description")}
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="email">
-              Email
+              {t("common.labels.email")}
             </label>
             <input
               id="email"
@@ -45,7 +52,7 @@ export function LoginPage() {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="password">
-              Password
+              {t("pages.login.password")}
             </label>
             <input
               id="password"
@@ -58,7 +65,7 @@ export function LoginPage() {
             />
             <div className="mt-2 text-right">
               <Link to="/forgot-password" className="text-sm font-medium text-slate-900 underline">
-                Forgot password?
+                {t("pages.login.forgotPassword")}
               </Link>
             </div>
           </div>
@@ -74,13 +81,13 @@ export function LoginPage() {
             disabled={isSubmitting}
             className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Signing in..." : "Sign in"}
+            {isSubmitting ? t("pages.login.signingIn") : t("pages.login.signIn")}
           </button>
 
           <div className="mt-4 text-center text-sm text-slate-600">
-            Not registered yet?{" "}
+            {t("pages.login.notRegistered")}{" "}
             <Link to="/register" className="font-medium text-slate-900 underline">
-              Register now
+              {t("pages.login.registerNow")}
             </Link>
           </div>
         </form>

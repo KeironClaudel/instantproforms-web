@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/providers/useAuth";
 import { isCompanySetupComplete } from "@/lib/utils/companySetup";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 function navLinkClassName({ isActive }: { isActive: boolean }) {
   return [
@@ -21,6 +23,7 @@ function setupLinkClassName({ isActive }: { isActive: boolean }) {
 }
 
 export function AppShell() {
+  const { t } = useTranslation();
   const { companySettings, logout } = useAuth();
   const isSetupComplete = isCompanySetupComplete(companySettings);
 
@@ -50,36 +53,38 @@ export function AppShell() {
 
               <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span className="rounded-full bg-slate-100 px-2 py-1">
-                  Prefix: {companySettings?.proformPrefix ?? "-"}
+                  {t("components.appShell.prefix")}: {companySettings?.proformPrefix ?? "-"}
                 </span>
                 <span className="rounded-full bg-slate-100 px-2 py-1">
-                  Tax: {companySettings?.taxPercentage ?? 0}%
+                  {t("components.appShell.tax")}: {companySettings?.taxPercentage ?? 0}%
                 </span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
+
             <nav className="hidden items-center gap-2 md:flex">
               <NavLink to="/app" end className={navLinkClassName}>
-                Dashboard
+                {t("components.appShell.dashboard")}
               </NavLink>
 
               <NavLink to="/app/proforms/new" className={navLinkClassName}>
-                New Proform
+                {t("components.appShell.newProform")}
               </NavLink>
 
               <NavLink to="/app/proforms" end className={navLinkClassName}>
-                Proforms
+                {t("components.appShell.proforms")}
               </NavLink>
 
               <NavLink to="/app/settings" className={navLinkClassName}>
-                Settings
+                {t("components.appShell.settings")}
               </NavLink>
 
               {!isSetupComplete ? (
                 <NavLink to="/app/onboarding/company" className={setupLinkClassName}>
-                  Complete Setup
+                  {t("components.appShell.completeSetup")}
                 </NavLink>
               ) : null}
             </nav>
@@ -89,7 +94,7 @@ export function AppShell() {
               onClick={() => void logout()}
               className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              Logout
+              {t("components.appShell.logout")}
             </button>
           </div>
         </div>
@@ -97,24 +102,24 @@ export function AppShell() {
         <div className="border-t border-slate-200 bg-white md:hidden">
           <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6">
             <NavLink to="/app" end className={navLinkClassName}>
-              Dashboard
+              {t("components.appShell.dashboard")}
             </NavLink>
 
             <NavLink to="/app/proforms/new" className={navLinkClassName}>
-              New Proform
+              {t("components.appShell.newProform")}
             </NavLink>
 
             <NavLink to="/app/proforms" end className={navLinkClassName}>
-              Proforms
+              {t("components.appShell.proforms")}
             </NavLink>
 
             <NavLink to="/app/settings" className={navLinkClassName}>
-              Settings
+              {t("components.appShell.settings")}
             </NavLink>
 
             {!isSetupComplete ? (
               <NavLink to="/app/onboarding/company" className={setupLinkClassName}>
-                Complete Setup
+                {t("components.appShell.completeSetup")}
               </NavLink>
             ) : null}
           </div>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { resetPassword } from "@/lib/api/authApi";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
@@ -34,6 +35,7 @@ function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
 }
 
 export function useResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token")?.trim() ?? "";
@@ -48,12 +50,12 @@ export function useResetPasswordPage() {
     setFeedback(null);
 
     if (!token) {
-      setFeedback(createErrorFeedback("The reset token is missing or invalid."));
+      setFeedback(createErrorFeedback(t("pages.resetPassword.feedback.missingToken")));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setFeedback(createErrorFeedback("Passwords do not match."));
+      setFeedback(createErrorFeedback(t("pages.resetPassword.feedback.passwordMismatch")));
       return;
     }
 
@@ -71,7 +73,9 @@ export function useResetPasswordPage() {
         navigate("/login", { replace: true });
       }, 1200);
     } catch (error) {
-      setFeedback(createErrorFeedback(getApiErrorMessage(error, "Failed to reset the password.")));
+      setFeedback(
+        createErrorFeedback(getApiErrorMessage(error, t("pages.resetPassword.feedback.failed"))),
+      );
     } finally {
       setIsSubmitting(false);
     }

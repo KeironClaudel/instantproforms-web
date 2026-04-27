@@ -1,7 +1,9 @@
 import { Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useOnboardingCompanyPage } from "@/hooks/pages/company/useOnboardingCompanyPage";
 
 export function OnboardingCompanyPage() {
+  const { t } = useTranslation();
   const {
     currencySymbol,
     displayName,
@@ -32,15 +34,15 @@ export function OnboardingCompanyPage() {
     <div className="mx-auto max-w-3xl">
       <div className="mb-8 text-center">
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
-          Welcome Setup
+          {t("pages.onboardingCompany.badge")}
         </div>
 
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          Set up your company
+          {t("pages.onboardingCompany.title")}
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Complete the essentials so you can start creating branded proforms right away.
+          {t("pages.onboardingCompany.description")}
         </p>
       </div>
 
@@ -51,16 +53,16 @@ export function OnboardingCompanyPage() {
         >
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-              Business Essentials
+              {t("pages.onboardingCompany.businessEssentials")}
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              These values will appear in your proforms and calculations.
+              {t("pages.onboardingCompany.businessEssentialsDescription")}
             </p>
           </div>
 
           <div className="grid gap-4">
             <div>
-              <label className="mb-1 block text-sm font-medium">Display Name</label>
+              <label className="mb-1 block text-sm font-medium">{t("common.labels.displayName")}</label>
               <input
                 className={inputClassName}
                 value={displayName}
@@ -71,7 +73,7 @@ export function OnboardingCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Proform Prefix</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.proformPrefix")}</label>
               <input
                 className={inputClassName}
                 value={proformPrefix}
@@ -82,7 +84,7 @@ export function OnboardingCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Tax Percentage</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxPercentage")}</label>
               <input
                 type="number"
                 min="0"
@@ -96,7 +98,7 @@ export function OnboardingCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Currency Symbol</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.currencySymbol")}</label>
               <input
                 className={inputClassName}
                 value={currencySymbol}
@@ -107,17 +109,17 @@ export function OnboardingCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Tax Label</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxLabel")}</label>
               <input
                 className={inputClassName}
                 value={taxLabel}
                 onChange={(event) => setTaxLabel(event.target.value)}
-                placeholder="Tax"
+                placeholder={t("common.defaults.taxLabel")}
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">Logo (optional)</label>
+              <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.logoOptional")}</label>
               <input
                 type="file"
                 accept=".png,.jpg,.jpeg,.webp"
@@ -144,17 +146,17 @@ export function OnboardingCompanyPage() {
             disabled={isSubmitting}
             className="w-full rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Saving setup..." : "Continue to Proforms"}
+            {isSubmitting ? t("pages.onboardingCompany.savingSetup") : t("pages.onboardingCompany.continueToProforms")}
           </button>
         </form>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-            Live Preview
+            {t("pages.onboardingCompany.livePreview")}
           </h2>
 
           <p className="mt-1 text-sm text-slate-600">
-            This gives you a quick idea of how your company identity will look.
+            {t("pages.onboardingCompany.livePreviewDescription")}
           </p>
 
           <div className="mt-5 rounded-3xl bg-slate-100 p-4">
@@ -168,7 +170,7 @@ export function OnboardingCompanyPage() {
               <div className="mt-5 grid gap-3">
                 <div className="rounded-2xl bg-white/10 px-4 py-3">
                   <div className="text-xs uppercase tracking-wide text-white/70">
-                    Tax
+                    {t("common.finance.tax")}
                   </div>
                   <div className="mt-1 font-medium">
                     {preview.taxLabel} ({preview.tax}%)
@@ -177,7 +179,7 @@ export function OnboardingCompanyPage() {
 
                 <div className="rounded-2xl bg-white/10 px-4 py-3">
                   <div className="text-xs uppercase tracking-wide text-white/70">
-                    Currency
+                    {t("common.finance.currency")}
                   </div>
                   <div className="mt-1 font-medium">{preview.currency}</div>
                 </div>

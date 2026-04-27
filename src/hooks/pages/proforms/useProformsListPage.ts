@@ -1,4 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/app/providers/useAuth";
 import { getProforms } from "@/lib/api/proformHistoryApi";
 import { createErrorFeedback, type FeedbackState } from "@/lib/utils/feedback";
@@ -15,6 +16,7 @@ function toDateInputValue(value: Date): string {
 }
 
 export function useProformsListPage() {
+  const { t } = useTranslation();
   const { companySettings } = useAuth();
   const [proforms, setProforms] = useState<ProformListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,14 +35,14 @@ export function useProformsListPage() {
         const data = await getProforms();
         setProforms(data);
       } catch {
-        setFeedback(createErrorFeedback("Failed to load proforms. Please try again later."));
+        setFeedback(createErrorFeedback(t("pages.proformsList.issueLoadFailed")));
       } finally {
         setIsLoading(false);
       }
     }
 
     void loadProforms();
-  }, []);
+  }, [t]);
 
   const filteredProforms = useMemo(() => {
     const normalizedClientFilter = deferredClientFilter.trim().toLowerCase();

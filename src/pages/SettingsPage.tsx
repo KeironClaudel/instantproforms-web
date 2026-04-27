@@ -1,7 +1,9 @@
 import { PageLoader } from "@/components/ui/PageLoader";
+import { useTranslation } from "react-i18next";
 import { useSettingsPage } from "@/hooks/pages/company/useSettingsPage";
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const {
     companySettings,
     feedback,
@@ -22,22 +24,22 @@ export function SettingsPage() {
     "min-h-32 w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-200";
 
   if (isLoading) {
-    return <PageLoader message="Loading company settings..." />;
+    return <PageLoader message={t("pages.settings.loading")} />;
   }
 
   return (
     <div className="mx-auto max-w-5xl px-1 sm:px-0">
       <div className="mb-8">
         <div className="inline-flex rounded-full bg-slate-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
-          Company Configuration
+          {t("pages.settings.badge")}
         </div>
 
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          Company Settings
+          {t("pages.settings.title")}
         </h1>
 
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-          Manage your branding, tax settings, contact details, and document configuration.
+          {t("pages.settings.description")}
         </p>
       </div>
 
@@ -45,12 +47,12 @@ export function SettingsPage() {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Company Information
+              {t("common.labels.companyInformation")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Display Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.displayName")}</label>
                 <input
                   className={inputClassName}
                   value={form.displayName}
@@ -60,7 +62,7 @@ export function SettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Legal Name</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.legalName")}</label>
                 <input
                   className={inputClassName}
                   value={form.legalName}
@@ -69,7 +71,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Website</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.website")}</label>
                 <input
                   className={inputClassName}
                   value={form.website}
@@ -78,7 +80,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Phone</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.phone")}</label>
                 <input
                   className={inputClassName}
                   value={form.phone}
@@ -87,7 +89,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Email</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.email")}</label>
                 <input
                   type="email"
                   className={inputClassName}
@@ -97,7 +99,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Address</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.address")}</label>
                 <input
                   className={inputClassName}
                   value={form.address}
@@ -106,7 +108,7 @@ export function SettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Terms and Conditions</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.termsAndConditions")}</label>
                 <textarea
                   className={textareaClassName}
                   value={form.termsAndConditions}
@@ -118,12 +120,12 @@ export function SettingsPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Branding and Document Rules
+              {t("pages.settings.brandingRules")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium">Primary Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.primaryColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -133,7 +135,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Secondary Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.secondaryColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -143,7 +145,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Accent Color</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.settings.accentColor")}</label>
                 <input
                   type="color"
                   className="h-12 w-full rounded-2xl border border-slate-300 bg-white p-2"
@@ -153,7 +155,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Proform Prefix</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.proformPrefix")}</label>
                 <input
                   className={inputClassName}
                   value={form.proformPrefix}
@@ -162,7 +164,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Tax Percentage</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxPercentage")}</label>
                 <input
                   type="number"
                   min="0"
@@ -175,7 +177,7 @@ export function SettingsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium">Currency Symbol</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.currencySymbol")}</label>
                 <input
                   className={inputClassName}
                   value={form.currencySymbol}
@@ -184,7 +186,7 @@ export function SettingsPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium">Tax Label</label>
+                <label className="mb-1 block text-sm font-medium">{t("pages.onboardingCompany.taxLabel")}</label>
                 <input
                   className={inputClassName}
                   value={form.taxLabel}
@@ -211,14 +213,14 @@ export function SettingsPage() {
             disabled={isSaving}
             className="w-full rounded-2xl bg-slate-900 px-4 py-3.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSaving ? "Saving changes..." : "Save Settings"}
+            {isSaving ? t("pages.settings.savingChanges") : t("pages.settings.saveSettings")}
           </button>
         </form>
 
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Logo
+              {t("pages.settings.logo")}
             </h2>
 
             <div className="flex flex-col items-center gap-4">
@@ -232,12 +234,12 @@ export function SettingsPage() {
                 </div>
               ) : (
                 <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 text-center text-xs font-medium text-slate-500">
-                  No logo uploaded yet
+                  {t("pages.settings.noLogo")}
                 </div>
               )}
 
               <label className="w-full cursor-pointer rounded-2xl border border-slate-300 bg-white px-4 py-3 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50">
-                {isUploadingLogo ? "Uploading..." : "Replace Logo"}
+                {isUploadingLogo ? t("pages.settings.uploading") : t("pages.settings.replaceLogo")}
                 <input
                   type="file"
                   accept=".png,.jpg,.jpeg,.webp"
@@ -251,7 +253,7 @@ export function SettingsPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Live Preview
+              {t("pages.settings.livePreview")}
             </h2>
 
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
@@ -273,7 +275,7 @@ export function SettingsPage() {
                     style={{ backgroundColor: previewStyles.secondaryColor }}
                   >
                     <div className="text-xs uppercase tracking-wide text-slate-600">
-                      Tax
+                      {t("common.finance.tax")}
                     </div>
                     <div className="mt-1 font-semibold">
                       {previewStyles.taxLabel} ({previewStyles.taxPercentage}%)
@@ -285,7 +287,7 @@ export function SettingsPage() {
                     style={{ backgroundColor: previewStyles.accentColor }}
                   >
                     <div className="text-xs uppercase tracking-wide text-slate-600">
-                      Currency
+                      {t("common.finance.currency")}
                     </div>
                     <div className="mt-1 font-semibold">{previewStyles.currencySymbol}</div>
                   </div>

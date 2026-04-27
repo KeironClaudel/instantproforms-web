@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getProformStatusBadgeClassName } from "@/lib/utils/proformStatus";
+import { getProformStatusBadgeClassName, getProformStatusLabel } from "@/lib/utils/proformStatus";
 import { useProformDetailsPage } from "@/hooks/pages/proforms/useProformDetailsPage";
 
 export function ProformDetailsPage() {
+  const { t } = useTranslation();
   const {
     companySettings,
     currencySymbol,
@@ -27,20 +29,20 @@ export function ProformDetailsPage() {
   } = useProformDetailsPage();
 
   if (isLoading) {
-    return <PageLoader message="Loading proform details..." />;
+    return <PageLoader message={t("pages.proformDetails.loading")} />;
   }
 
   if (!proform) {
     return (
       <EmptyState
-        title="Proform not found"
-        description="The requested proform could not be loaded or does not exist."
+        title={t("pages.proformDetails.proformNotFoundTitle")}
+        description={t("pages.proformDetails.proformNotFoundDescription")}
         action={
           <Link
             to="/app/proforms"
             className="inline-flex rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
           >
-            Back to Proforms
+            {t("pages.proformDetails.backToProforms")}
           </Link>
         }
       />
@@ -52,7 +54,10 @@ export function ProformDetailsPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <SectionHeader
           title={proform.number}
-          description={`Created on ${issuedAtLabel} for ${proform.clientName}.`}
+          description={t("pages.proformDetails.createdOn", {
+            clientName: proform.clientName,
+            date: issuedAtLabel,
+          })}
         />
 
         <div className="flex flex-wrap gap-3">
@@ -60,7 +65,7 @@ export function ProformDetailsPage() {
             to="/app/proforms"
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
           >
-            Back
+            {t("common.actions.back")}
           </Link>
 
           <button
@@ -69,7 +74,7 @@ export function ProformDetailsPage() {
             disabled={isDownloading}
             className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
           >
-            {isDownloading ? "Downloading..." : "Download PDF"}
+            {isDownloading ? t("pages.proformDetails.downloading") : t("pages.proformDetails.downloadPdf")}
           </button>
 
           <button
@@ -78,7 +83,7 @@ export function ProformDetailsPage() {
             disabled={isSharing}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSharing ? "Sharing..." : "Share"}
+            {isSharing ? t("pages.proformDetails.sharing") : t("pages.proformDetails.share")}
           </button>
 
           <button
@@ -87,7 +92,7 @@ export function ProformDetailsPage() {
             disabled={isSendingToClientEmail || !proform.clientEmail}
             className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSendingToClientEmail ? "Sending..." : "Send to Client Email"}
+            {isSendingToClientEmail ? t("pages.proformDetails.sending") : t("pages.proformDetails.sendToClientEmail")}
           </button>
         </div>
       </div>
@@ -108,44 +113,44 @@ export function ProformDetailsPage() {
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Client Information
+              {t("pages.proformDetails.clientInformation")}
             </h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Client</div>
+                <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.labels.client")}</div>
                 <div className="mt-1 font-semibold text-slate-900">{proform.clientName}</div>
               </div>
 
               <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Status</div>
+                <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.labels.status")}</div>
                 <div className="mt-2">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getProformStatusBadgeClassName(proform.status)}`}
                   >
-                    {proform.status}
+                    {getProformStatusLabel(proform.status, t)}
                   </span>
                 </div>
               </div>
 
               <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Email</div>
+                <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.labels.email")}</div>
                 <div className="mt-1 font-semibold text-slate-900">
-                  {proform.clientEmail || "Not provided"}
+                  {proform.clientEmail || t("common.defaults.notProvided")}
                 </div>
               </div>
 
               <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Phone</div>
+                <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.labels.phone")}</div>
                 <div className="mt-1 font-semibold text-slate-900">
-                  {proform.clientPhone || "Not provided"}
+                  {proform.clientPhone || t("common.defaults.notProvided")}
                 </div>
               </div>
             </div>
 
             {proform.notes ? (
               <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-                <div className="text-xs uppercase tracking-wide text-slate-500">Notes</div>
+                <div className="text-xs uppercase tracking-wide text-slate-500">{t("common.labels.notes")}</div>
                 <div className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700">
                   {proform.notes}
                 </div>
@@ -155,12 +160,12 @@ export function ProformDetailsPage() {
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Update Status
+              {t("pages.proformDetails.updateStatus")}
             </h2>
 
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
               <div>
-                <label className="mb-1 block text-sm font-medium">Status</label>
+                <label className="mb-1 block text-sm font-medium">{t("common.labels.status")}</label>
                 <select
                   className="w-full rounded-2xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-200"
                   value={selectedStatus}
@@ -169,7 +174,7 @@ export function ProformDetailsPage() {
                 >
                   {editableStatuses.map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      {getProformStatusLabel(status, t)}
                     </option>
                   ))}
                 </select>
@@ -181,14 +186,14 @@ export function ProformDetailsPage() {
                 disabled={isUpdatingStatus || selectedStatus === proform.status}
                 className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isUpdatingStatus ? "Saving..." : "Save Status"}
+                {isUpdatingStatus ? t("pages.proformDetails.saving") : t("pages.proformDetails.saveStatus")}
               </button>
             </div>
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Items
+              {t("pages.proformDetails.items")}
             </h2>
 
             <div className="space-y-3">
@@ -203,7 +208,7 @@ export function ProformDetailsPage() {
                     <div className="grid gap-3 lg:grid-cols-[1.8fr_0.6fr_0.8fr_0.8fr]">
                       <div>
                         <div className="text-xs uppercase tracking-wide text-slate-500">
-                          Description
+                          {t("common.labels.description")}
                         </div>
                         <div className="mt-1 font-medium text-slate-900">
                           {item.description}
@@ -212,14 +217,14 @@ export function ProformDetailsPage() {
 
                       <div>
                         <div className="text-xs uppercase tracking-wide text-slate-500">
-                          Quantity
+                          {t("common.labels.quantity")}
                         </div>
                         <div className="mt-1 font-medium text-slate-900">{item.quantity}</div>
                       </div>
 
                       <div>
                         <div className="text-xs uppercase tracking-wide text-slate-500">
-                          Unit Price
+                          {t("common.finance.unitPrice")}
                         </div>
                         <div className="mt-1 font-medium text-slate-900">
                           {currencySymbol}
@@ -229,7 +234,7 @@ export function ProformDetailsPage() {
 
                       <div>
                         <div className="text-xs uppercase tracking-wide text-slate-500">
-                          Total
+                          {t("common.finance.total")}
                         </div>
                         <div className="mt-1 font-semibold text-slate-900">
                           {currencySymbol}
@@ -246,12 +251,12 @@ export function ProformDetailsPage() {
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="mb-5 text-xl font-semibold tracking-tight text-slate-900">
-              Financial Summary
+              {t("pages.proformDetails.financialSummary")}
             </h2>
 
             <div className="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-slate-600">Subtotal</span>
+                <span className="text-slate-600">{t("common.finance.subtotal")}</span>
                 <span className="font-medium text-slate-900">
                   {currencySymbol}
                   {proform.subtotal.toFixed(2)}
@@ -260,7 +265,7 @@ export function ProformDetailsPage() {
 
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">
-                  {companySettings?.taxLabel ?? "Tax"} ({proform.taxPercentage}%)
+                  {companySettings?.taxLabel ?? t("common.defaults.taxLabel")} ({proform.taxPercentage}%)
                 </span>
                 <span className="font-medium text-slate-900">
                   {currencySymbol}
@@ -269,7 +274,7 @@ export function ProformDetailsPage() {
               </div>
 
               <div className="flex items-center justify-between border-t border-slate-300 pt-4 text-lg font-semibold text-slate-900">
-                <span>Total</span>
+                <span>{t("common.finance.total")}</span>
                 <span>
                   {currencySymbol}
                   {proform.total.toFixed(2)}

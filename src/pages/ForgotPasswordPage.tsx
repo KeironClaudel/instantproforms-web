@@ -1,23 +1,32 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useForgotPasswordPage } from "@/hooks/pages/auth/useForgotPasswordPage";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const { email, feedback, handleSubmit, isSubmitting, setEmail } = useForgotPasswordPage();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Forgot password</h1>
+          <div className="mb-4 flex justify-end">
+            <LanguageSwitcher compact />
+          </div>
+
+          <h1 className="text-2xl font-semibold text-slate-900">
+            {t("pages.forgotPassword.title")}
+          </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Enter your email and we&apos;ll send you a link to reset your password.
+            {t("pages.forgotPassword.description")}
           </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="email">
-              Email
+              {t("common.labels.email")}
             </label>
             <input
               id="email"
@@ -47,13 +56,13 @@ export function ForgotPasswordPage() {
             disabled={isSubmitting}
             className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Sending..." : "Send reset link"}
+            {isSubmitting ? t("pages.forgotPassword.sending") : t("pages.forgotPassword.sendLink")}
           </button>
 
           <div className="text-center text-sm text-slate-600">
-            Remembered your password?{" "}
+            {t("pages.forgotPassword.remembered")}{" "}
             <Link to="/login" className="font-medium text-slate-900 underline">
-              Back to sign in
+              {t("pages.forgotPassword.backToSignIn")}
             </Link>
           </div>
         </form>

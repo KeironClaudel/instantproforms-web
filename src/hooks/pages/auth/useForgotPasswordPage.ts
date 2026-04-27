@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { forgotPassword } from "@/lib/api/authApi";
 import { createErrorFeedback, createSuccessFeedback } from "@/lib/utils/feedback";
 
@@ -33,6 +34,7 @@ function getApiErrorMessage(error: unknown, fallbackMessage: string): string {
 }
 
 export function useForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +52,7 @@ export function useForgotPasswordPage() {
       setFeedback(createSuccessFeedback(response.message));
     } catch (error) {
       setFeedback(
-        createErrorFeedback(getApiErrorMessage(error, "Failed to start the password reset process.")),
+        createErrorFeedback(getApiErrorMessage(error, t("pages.forgotPassword.feedbackError"))),
       );
     } finally {
       setIsSubmitting(false);

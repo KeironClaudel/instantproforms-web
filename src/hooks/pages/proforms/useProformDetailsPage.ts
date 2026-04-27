@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
 import {
@@ -20,16 +21,17 @@ type FeedbackState = {
 
 const editableStatuses = ["Draft", "Sent", "Accepted", "Rejected", "Cancelled"] as const;
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
 
-  return new Intl.DateTimeFormat("es-CR", {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
 }
 
 export function useProformDetailsPage() {
+  const { i18n, t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { companySettings } = useAuth();
 
@@ -45,7 +47,7 @@ export function useProformDetailsPage() {
   useEffect(() => {
     async function loadDetails() {
       if (!id) {
-        setFeedback(createErrorFeedback("Proform identifier was not provided."));
+        setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingRouteId")));
         setIsLoading(false);
         return;
       }
@@ -56,18 +58,18 @@ export function useProformDetailsPage() {
         setProform(data);
         setSelectedStatus(data.status);
       } catch {
-        setFeedback(createErrorFeedback("Failed to load proform details."));
+        setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.loadFailed")));
       } finally {
         setIsLoading(false);
       }
     }
 
     void loadDetails();
-  }, [id]);
+  }, [id, t]);
 
   async function handleDownloadPdf() {
     if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingId")));
       return;
     }
 
@@ -75,9 +77,9 @@ export function useProformDetailsPage() {
       setIsDownloading(true);
       const blob = await downloadProformPdf(proform.id);
       downloadBlobFile(blob, `${proform.number}.pdf`);
-      setFeedback(createSuccessFeedback("PDF downloaded successfully."));
+      setFeedback(createSuccessFeedback(t("pages.proformDetails.feedback.downloadSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to download the PDF."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.downloadFailed")));
     } finally {
       setIsDownloading(false);
     }
@@ -85,7 +87,7 @@ export function useProformDetailsPage() {
 
   async function handleShare() {
     if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingId")));
       return;
     }
 
@@ -102,7 +104,7 @@ export function useProformDetailsPage() {
       });
 
       if (sharedAsFile) {
-        setFeedback(createSuccessFeedback("PDF share sheet opened successfully."));
+        setFeedback(createSuccessFeedback(t("pages.proformDetails.feedback.sharePdfSuccess")));
         return;
       }
 
@@ -110,13 +112,13 @@ export function useProformDetailsPage() {
       const shared = await shareUrl(`Proform ${proform.number}`, response.shareUrl);
 
       if (!shared) {
-        setFeedback(createErrorFeedback("Native share is not available on this device."));
+        setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.nativeShareUnavailable")));
         return;
       }
 
-      setFeedback(createSuccessFeedback("Share sheet opened successfully."));
+      setFeedback(createSuccessFeedback(t("pages.proformDetails.feedback.shareSuccess")));
     } catch {
-      setFeedback(createErrorFeedback("Failed to share the proform."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.shareFailed")));
     } finally {
       setIsSharing(false);
     }
@@ -124,12 +126,12 @@ export function useProformDetailsPage() {
 
   async function handleSendToClientEmail() {
     if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingId")));
       return;
     }
 
     if (!proform.clientEmail) {
-      setFeedback(createErrorFeedback("This proform does not have a client email address."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingClientEmail")));
       return;
     }
 
@@ -151,9 +153,16 @@ export function useProformDetailsPage() {
           : current,
       );
       setSelectedStatus(response.status);
-      setFeedback(createSuccessFeedback(`Proform ${proform.number} was sent to ${proform.clientEmail}.`));
+      setFeedback(
+        createSuccessFeedback(
+          t("pages.proformDetails.feedback.sendSuccess", {
+            email: proform.clientEmail,
+            number: proform.number,
+          }),
+        ),
+      );
     } catch {
-      setFeedback(createErrorFeedback("Failed to send the proform to the client email."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.sendFailed")));
     } finally {
       setIsSendingToClientEmail(false);
     }
@@ -161,12 +170,12 @@ export function useProformDetailsPage() {
 
   async function handleUpdateStatus() {
     if (!proform?.id) {
-      setFeedback(createErrorFeedback("Proform identifier was not found."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.missingId")));
       return;
     }
 
     if (selectedStatus === proform.status) {
-      setFeedback(createErrorFeedback("Select a different status before saving."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.selectDifferentStatus")));
       return;
     }
 
@@ -188,7 +197,7 @@ export function useProformDetailsPage() {
       setSelectedStatus(response.status);
       setFeedback(createSuccessFeedback(response.message));
     } catch {
-      setFeedback(createErrorFeedback("Failed to update the proform status."));
+      setFeedback(createErrorFeedback(t("pages.proformDetails.feedback.updateStatusFailed")));
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -208,7 +217,12 @@ export function useProformDetailsPage() {
     isSendingToClientEmail,
     isSharing,
     isUpdatingStatus,
-    issuedAtLabel: proform ? formatDate(proform.issuedAtUtc) : "",
+    issuedAtLabel: proform
+      ? formatDate(
+          proform.issuedAtUtc,
+          i18n.resolvedLanguage?.startsWith("es") ? "es-CR" : "en-US",
+        )
+      : "",
     proform,
     selectedStatus,
     setSelectedStatus,

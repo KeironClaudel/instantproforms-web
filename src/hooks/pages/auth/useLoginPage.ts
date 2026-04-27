@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
 
@@ -9,6 +10,7 @@ type LocationState = {
 };
 
 export function useLoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, isLoading } = useAuth();
@@ -35,7 +37,7 @@ export function useLoginPage() {
 
       navigate(redirectPath, { replace: true });
     } catch {
-      setErrorMessage("Invalid credentials or session setup failed.");
+      setErrorMessage(t("pages.login.invalidCredentials"));
     } finally {
       setIsSubmitting(false);
     }

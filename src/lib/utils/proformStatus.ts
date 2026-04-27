@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 export function getProformStatusBadgeClassName(status: string | null | undefined): string {
   switch ((status ?? "").toLowerCase()) {
     case "draft":
@@ -12,5 +14,25 @@ export function getProformStatusBadgeClassName(status: string | null | undefined
       return "bg-amber-100 text-amber-800";
     default:
       return "bg-slate-100 text-slate-700";
+  }
+}
+
+export function getProformStatusLabel(
+  status: string | null | undefined,
+  t: TFunction,
+): string {
+  switch ((status ?? "").toLowerCase()) {
+    case "draft":
+      return t("common.statuses.draft");
+    case "sent":
+      return t("common.statuses.sent");
+    case "accepted":
+      return t("common.statuses.accepted");
+    case "rejected":
+      return t("common.statuses.rejected");
+    case "cancelled":
+      return t("common.statuses.cancelled");
+    default:
+      return status ?? "";
   }
 }
