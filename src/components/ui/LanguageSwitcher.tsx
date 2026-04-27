@@ -13,7 +13,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const { i18n, t } = useTranslation();
 
   return (
-    <div className="inline-flex rounded-xl border border-slate-300 bg-white p-1 shadow-sm">
+    <div className="inline-flex shrink-0 rounded-xl border border-slate-300 bg-white p-1 shadow-sm">
       {languageOptions.map((option) => {
         const isActive = i18n.resolvedLanguage?.startsWith(option.code) ?? i18n.language.startsWith(option.code);
 
@@ -23,7 +23,9 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
             type="button"
             onClick={() => void i18n.changeLanguage(option.code)}
             className={[
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition",
+              compact
+                ? "w-11 rounded-lg px-0 py-1.5 text-sm font-medium transition text-center"
+                : "min-w-24 rounded-lg px-3 py-1.5 text-sm font-medium transition text-center",
               isActive
                 ? "bg-slate-900 text-white"
                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",

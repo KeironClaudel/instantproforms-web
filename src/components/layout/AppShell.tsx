@@ -32,6 +32,8 @@ export function AppShell() {
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
+            <LanguageSwitcher compact />
+
             {companySettings?.logoUrl ? (
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <img
@@ -63,8 +65,6 @@ export function AppShell() {
           </div>
 
           <div className="flex items-center gap-2">
-            <LanguageSwitcher compact />
-
             <nav className="hidden items-center gap-2 md:flex">
               <NavLink to="/app" end className={navLinkClassName}>
                 {t("components.appShell.dashboard")}
